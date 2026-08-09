@@ -53,18 +53,31 @@ export function EventForm() {
           <input id="date" name="date" type="date" required className="field" />
         </div>
 
-        <div>
-          <label htmlFor="accent" className="stamp mb-2 block">
-            Cor do neon
-          </label>
-          <select id="accent" name="accent" className="field" defaultValue="purple">
-            {ACCENTS.map((a) => (
-              <option key={a.value} value={a.value} className="bg-void">
-                {a.label}
-              </option>
+        <fieldset>
+          <legend className="stamp mb-2">Cor do neon</legend>
+          <div className="flex gap-2">
+            {ACCENTS.map((a, i) => (
+              <label
+                key={a.value}
+                title={a.label}
+                className="group relative flex-1 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="accent"
+                  value={a.value}
+                  defaultChecked={i === 0}
+                  className="peer sr-only"
+                />
+                <span className="sr-only">{a.label}</span>
+                <span
+                  aria-hidden="true"
+                  className={`block h-10 border border-concrete transition-all peer-checked:scale-105 peer-checked:border-bone peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-acid ${a.swatch}`}
+                />
+              </label>
             ))}
-          </select>
-        </div>
+          </div>
+        </fieldset>
       </div>
 
       <div>

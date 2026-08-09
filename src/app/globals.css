@@ -15,7 +15,9 @@
   --color-ash: #8a7f96;
 
   /* --- neon (a luz da casa) --- */
-  --color-neon-purple: #b026ff;
+  /* #b026ff dava 4.32:1 no preto — reprovava no AA para texto pequeno.
+     Este tom mantém o roxo de neon e passa de 5:1. */
+  --color-neon-purple: #bd51ff;
   --color-neon-magenta: #ff2fd0;
   --color-neon-blue: #1fe0ff;
   --color-neon-red: #ff1f43;
@@ -26,7 +28,7 @@
   --font-display: var(--font-anton), "Impact", sans-serif;
   --font-tag: var(--font-marker), cursive;
   --font-body: var(--font-condensed), "Arial Narrow", sans-serif;
-  --font-tech: var(--font-tech), ui-monospace, monospace;
+  --font-tech: var(--font-chakra), ui-monospace, monospace;
 
   /* --- movimento --- */
   --animate-flicker: flicker 4s linear infinite;
@@ -449,7 +451,9 @@
     width: 100%;
     padding: 0.8rem 1rem;
     background: color-mix(in oklab, var(--color-void) 75%, transparent);
-    border: 1px solid var(--color-concrete);
+    /* --color-concrete some no preto (1.17:1): o campo ficava invisível
+       até receber foco. Esta borda dá ~3:1 contra o fundo. */
+    border: 1px solid #4b4059;
     color: var(--color-bone);
     font-family: var(--font-body);
     font-size: 1.02rem;

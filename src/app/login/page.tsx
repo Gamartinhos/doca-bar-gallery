@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth";
+import { firstParam, safeNext } from "@/lib/safe-next";
 
 import { LoginForm } from "./login-form";
 
@@ -13,14 +14,17 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; modo?: string }>;
+  searchParams: Promise<{
+    next?: string | string[];
+    modo?: string | string[];
+  }>;
 }) {
   const user = await getCurrentUser();
   if (user) redirect("/dashboard");
 
   const params = await searchParams;
-  const next =
-    params.next && params.next.startsWith("/") ? params.next : "/dashboard";
+  const next = safeNext(firstParam(params.next));
+  const modo = firstParam(params.modo);
 
   return (
     <div className="relative grid min-h-[calc(100vh-8rem)] lg:grid-cols-2">
@@ -51,8 +55,14 @@ export default async function LoginPage({
       </aside>
 
       {/* ---------- lado direito: formulário ---------- */}
-      <div className="flex items-center justify-center px-4 py-16 sm:px-10">
-        <LoginForm next={next} startAsSignUp={params.modo === "cadastro"} />
+      <div className="flex flex-col items-center justify-center px-4 py-16 sm:px-10">
+        {/* No mobile a coluna da esquerda some, então o h1 vem aqui. */}
+        <h1 className="mb-10 w-full max-w-md font-display text-5xl leading-[0.85] lg:sr-only">
+          <span className="outline-type block">ÁREA</span>
+          <span className="neon neon-purple block">RESTRITA</span>
+        </h1>
+
+        <LoginForm next={next} startAsSignUp={modo === "cadastro"} />
       </div>
     </div>
   );

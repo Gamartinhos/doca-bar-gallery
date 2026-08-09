@@ -201,7 +201,7 @@ export default async function AdminPage() {
                     <div className="min-w-0">
                       <Link
                         href={`/evento/${e.slug}`}
-                        className="truncate font-display text-2xl text-bone hover:text-neon-blue"
+                        className="block truncate font-display text-2xl text-bone hover:text-neon-blue"
                       >
                         {e.title}
                       </Link>

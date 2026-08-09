@@ -8,7 +8,7 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-concrete bg-void/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
         <Link href="/" className="group flex items-baseline gap-2">
           <span className="font-display text-3xl leading-none tracking-tight text-bone transition-colors group-hover:text-neon-magenta sm:text-4xl">
             DOCA
@@ -18,7 +18,7 @@ export async function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-1 sm:gap-3">
+        <nav className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1 sm:gap-x-3">
           <Link
             href="/"
             className="stamp px-2 py-2 transition-colors hover:text-neon-blue"

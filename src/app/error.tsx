@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function GlobalError({
@@ -9,9 +10,19 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
+
+  // reset() só remonta o segmento com o payload que já falhou. Quando o
+  // erro veio de um Server Component (o caso comum aqui, tudo busca dados
+  // no servidor), é preciso refazer o request antes de remontar.
+  function religar() {
+    router.refresh();
+    reset();
+  }
 
   return (
     <div className="concrete flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
@@ -26,7 +37,7 @@ export default function GlobalError({
 
       {error.digest && <p className="stamp mt-3">ref: {error.digest}</p>}
 
-      <button type="button" onClick={reset} className="btn-street neon-red mt-10">
+      <button type="button" onClick={religar} className="btn-street neon-red mt-10">
         Religar
       </button>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface GalleryItem {
   id: string;
@@ -29,6 +29,9 @@ const TILTS = ["-rotate-1", "rotate-1", "rotate-0", "-rotate-2", "rotate-2"];
 
 export function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  // De onde o usuário veio, pra devolver o foco ao fechar.
+  const openerRef = useRef<HTMLElement | null>(null);
 
   const close = useCallback(() => setOpenIndex(null), []);
   const go = useCallback(
@@ -41,24 +44,77 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
     [items.length],
   );
 
+  const isOpen = openIndex !== null;
+
+  // Abertura/fechamento: trava o scroll, foca o diálogo e devolve o foco
+  // ao card de origem. Depende só de `isOpen` para não disparar a cada
+  // navegação entre fotos.
   useEffect(() => {
-    if (openIndex === null) return;
+    if (!isOpen) return;
 
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-      if (event.key === "ArrowRight") go(1);
-      if (event.key === "ArrowLeft") go(-1);
-    };
+    const opener = openerRef.current;
+    dialogRef.current?.focus();
 
-    document.addEventListener("keydown", onKey);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = previousOverflow;
+      opener?.focus();
     };
-  }, [openIndex, close, go]);
+  }, [isOpen]);
+
+  // Teclado: Esc, setas e prisão de Tab.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const dialog = dialogRef.current;
+
+    const focusable = () =>
+      Array.from(
+        dialog?.querySelectorAll<HTMLElement>(
+          'button, [href], video[controls], [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((el) => !el.hasAttribute("disabled"));
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        go(1);
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        go(-1);
+        return;
+      }
+
+      // Prende o Tab dentro do lightbox.
+      if (event.key === "Tab") {
+        const nodes = focusable();
+        if (nodes.length === 0) {
+          event.preventDefault();
+          return;
+        }
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        const active = document.activeElement;
+
+        if (event.shiftKey && (active === first || active === dialog)) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, close, go]);
 
   if (items.length === 0) {
     return (
@@ -78,7 +134,11 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
           <button
             key={item.id}
             type="button"
-            onClick={() => setOpenIndex(index)}
+            onClick={(e) => {
+              // Guarda quem abriu, pra devolver o foco no fechamento.
+              openerRef.current = e.currentTarget;
+              setOpenIndex(index);
+            }}
             className={`group scanlines relative overflow-hidden border border-concrete bg-ink transition-all duration-200 hover:z-10 hover:border-neon-magenta hover:shadow-[0_0_38px_-6px_var(--color-neon-magenta)] ${
               SPANS[index % SPANS.length]
             } ${TILTS[index % TILTS.length]} hover:rotate-0`}
@@ -92,7 +152,11 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
                 playsInline
                 preload="metadata"
                 className="h-full w-full object-cover opacity-85 transition-all duration-300 group-hover:scale-105 group-hover:opacity-100"
-                onMouseEnter={(e) => void e.currentTarget.play()}
+                // play() rejeita se o mouse sair antes do vídeo começar;
+                // sem o catch vira uma DOMException não tratada no console.
+                onMouseEnter={(e) => {
+                  void e.currentTarget.play().catch(() => {});
+                }}
                 onMouseLeave={(e) => e.currentTarget.pause()}
               />
             ) : (
@@ -133,10 +197,12 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
       {/* ---------------- Lightbox ---------------- */}
       {active && (
         <div
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label="Visualizador de mídia"
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-void/97 p-4 backdrop-blur-sm"
+          tabIndex={-1}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-void/97 p-4 backdrop-blur-sm focus:outline-none"
           onClick={close}
         >
           <button

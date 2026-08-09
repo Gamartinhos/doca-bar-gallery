@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createClient } from "@/utils/supabase/client";
 
@@ -40,34 +40,59 @@ export function Uploader({
   const [busy, setBusy] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
 
+  // Espelho síncrono da fila: o loop de envio não pode ler o `queue`
+  // capturado no render, senão sobe arquivo que o usuário já removeu.
+  // Toda mutação abaixo escreve no ref e no state juntos.
+  const queueRef = useRef<QueueItem[]>([]);
+
+  // Revoga todos os object URLs quando o componente sai de cena.
+  useEffect(() => {
+    return () => {
+      for (const item of queueRef.current) URL.revokeObjectURL(item.preview);
+    };
+  }, []);
+
   const addFiles = useCallback((files: FileList | File[]) => {
     const accepted = Array.from(files).filter(
       (f) => f.type.startsWith("image/") || f.type.startsWith("video/"),
     );
 
-    setQueue((current) => [
-      ...current,
-      ...accepted.map((file) => ({
-        key: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
-          .toString(36)
-          .slice(2, 7)}`,
-        file,
-        preview: URL.createObjectURL(file),
-        status: "queued" as Status,
-      })),
-    ]);
+    // createObjectURL e Math.random têm efeito colateral: ficam fora do
+    // updater do setState, que o React pode reexecutar.
+    const novos: QueueItem[] = accepted.map((file) => ({
+      key: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
+        .toString(36)
+        .slice(2, 7)}`,
+      file,
+      preview: URL.createObjectURL(file),
+      status: "queued" as Status,
+    }));
+
+    queueRef.current = [...queueRef.current, ...novos];
+    setQueue(queueRef.current);
     setSummary(null);
   }, []);
 
   const removeItem = useCallback((key: string) => {
-    setQueue((current) => {
-      const target = current.find((i) => i.key === key);
-      if (target) URL.revokeObjectURL(target.preview);
-      return current.filter((i) => i.key !== key);
-    });
+    const alvo = queueRef.current.find((i) => i.key === key);
+    if (alvo) URL.revokeObjectURL(alvo.preview);
+    queueRef.current = queueRef.current.filter((i) => i.key !== key);
+    setQueue(queueRef.current);
+  }, []);
+
+  const clearQueue = useCallback(() => {
+    for (const item of queueRef.current) URL.revokeObjectURL(item.preview);
+    queueRef.current = [];
+    setQueue([]);
+    setSummary(null);
   }, []);
 
   const patch = useCallback((key: string, next: Partial<QueueItem>) => {
+    // Atualiza o espelho na hora: o loop de envio lê queueRef entre awaits
+    // e não pode enxergar um estado atrasado.
+    queueRef.current = queueRef.current.map((i) =>
+      i.key === key ? { ...i, ...next } : i,
+    );
     setQueue((current) =>
       current.map((i) => (i.key === key ? { ...i, ...next } : i)),
     );
@@ -135,8 +160,13 @@ export function Uploader({
     let ok = 0;
     let fail = 0;
 
-    for (const item of queue) {
-      if (item.status === "done") continue;
+    // Percorre pelas chaves e reconsulta a fila viva a cada volta: se o
+    // usuário remover um item durante o lote, ele não é enviado.
+    const chaves = queueRef.current.map((i) => i.key);
+
+    for (const key of chaves) {
+      const item = queueRef.current.find((i) => i.key === key);
+      if (!item || item.status === "done") continue;
 
       patch(item.key, { status: "sending", error: undefined });
 
@@ -279,11 +309,7 @@ export function Uploader({
             </h2>
             <button
               type="button"
-              onClick={() => {
-                queue.forEach((i) => URL.revokeObjectURL(i.preview));
-                setQueue([]);
-                setSummary(null);
-              }}
+              onClick={clearQueue}
               className="stamp transition-colors hover:text-neon-red"
             >
               Limpar

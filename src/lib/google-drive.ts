@@ -91,9 +91,14 @@ async function getAccessToken(): Promise<string> {
   return json.access_token;
 }
 
-/** Deixa o arquivo legível por qualquer pessoa com o link. */
+/**
+ * Deixa o arquivo legível por qualquer pessoa com o link.
+ *
+ * Se isto falhar o upload é inútil: o arquivo existe no Drive mas a
+ * galeria nunca conseguirá exibi-lo. Então o erro sobe.
+ */
 async function makePublic(fileId: string, token: string): Promise<void> {
-  await fetch(
+  const res = await fetch(
     `https://www.googleapis.com/drive/v3/files/${fileId}/permissions?supportsAllDrives=true`,
     {
       method: "POST",
@@ -104,6 +109,12 @@ async function makePublic(fileId: string, token: string): Promise<void> {
       body: JSON.stringify({ role: "reader", type: "anyone" }),
     },
   );
+
+  if (!res.ok) {
+    throw new Error(
+      `Arquivo subiu mas não ficou público (${res.status}): ${await res.text()}`,
+    );
+  }
 }
 
 /**
@@ -150,18 +161,16 @@ export async function uploadToDrive(
     throw new Error(`Upload pro Drive falhou (${res.status}): ${await res.text()}`);
   }
 
-  const created = (await res.json()) as {
-    id: string;
-    thumbnailLink?: string;
-  };
+  const created = (await res.json()) as { id: string };
 
   await makePublic(created.id, token);
 
+  // Sempre lh3: serve a imagem direto, sem a página intermediária do Drive.
+  // O `thumbnailLink` devolvido pela API NÃO serve aqui — ele expira em
+  // algumas horas, e este valor vai pro banco como URL permanente.
   return {
     fileId: created.id,
-    // lh3 serve a imagem direto, sem a página intermediária do Drive.
     url: `https://lh3.googleusercontent.com/d/${created.id}`,
-    thumbnailUrl:
-      created.thumbnailLink ?? `https://lh3.googleusercontent.com/d/${created.id}=w600`,
+    thumbnailUrl: `https://lh3.googleusercontent.com/d/${created.id}=w600`,
   };
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { safeNext } from "@/lib/safe-next";
 import { createClient } from "@/utils/supabase/server";
 
 export interface AuthState {
@@ -10,11 +11,6 @@ export interface AuthState {
   message?: string;
 }
 
-/** Só aceita caminhos internos — evita open redirect. */
-function safeNext(value: FormDataEntryValue | null): string {
-  const raw = typeof value === "string" ? value : "";
-  return raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
-}
 
 export async function signIn(
   _prev: AuthState,

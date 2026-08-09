@@ -37,9 +37,12 @@ export function LoginForm({
   return (
     <div className="w-full max-w-md">
       {/* alternador */}
+      {/* aria-pressed + o marcador "▸" garantem que o estado selecionado
+          não dependa só da cor de fundo. */}
       <div className="mb-8 grid grid-cols-2 border border-concrete">
         <button
           type="button"
+          aria-pressed={!isSignUp}
           onClick={() => setIsSignUp(false)}
           className={`py-3 font-display text-lg uppercase tracking-wider transition-colors ${
             isSignUp
@@ -47,10 +50,12 @@ export function LoginForm({
               : "bg-bone text-void"
           }`}
         >
+          {!isSignUp && <span aria-hidden="true">▸ </span>}
           Entrar
         </button>
         <button
           type="button"
+          aria-pressed={isSignUp}
           onClick={() => setIsSignUp(true)}
           className={`py-3 font-display text-lg uppercase tracking-wider transition-colors ${
             isSignUp
@@ -58,6 +63,7 @@ export function LoginForm({
               : "bg-transparent text-ash hover:text-bone"
           }`}
         >
+          {isSignUp && <span aria-hidden="true">▸ </span>}
           Credencial
         </button>
       </div>

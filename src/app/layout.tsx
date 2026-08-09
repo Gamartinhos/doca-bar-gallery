@@ -33,7 +33,10 @@ const condensed = Barlow_Condensed({
 });
 
 const tech = Chakra_Petch({
-  variable: "--font-tech",
+  // NÃO usar "--font-tech": esse é o nome do token do @theme em globals.css.
+  // Se os dois tiverem o mesmo nome, o token vira var(--font-tech) apontando
+  // pra si mesmo, a declaração é descartada e a fonte nunca aplica.
+  variable: "--font-chakra",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   display: "swap",
@@ -78,6 +81,10 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      // globals.css usa scroll-behavior: smooth. A partir do Next.js 16 o
+      // framework só neutraliza isso na navegação se o atributo estiver aqui —
+      // sem ele, trocar de página vira um scroll animado até o topo.
+      data-scroll-behavior="smooth"
       className={`${anton.variable} ${marker.variable} ${condensed.variable} ${tech.variable} h-full antialiased`}
     >
       <body className="grain flex min-h-full flex-col">

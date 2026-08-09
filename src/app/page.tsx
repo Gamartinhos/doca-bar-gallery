@@ -11,28 +11,36 @@ export const revalidate = 0;
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [{ data: eventsData }, { data: mediaData }] = await Promise.all([
-    supabase
-      .from("events")
-      .select("*")
-      .eq("is_published", true)
-      .order("date", { ascending: false }),
-    supabase
-      .from("media")
-      .select("*")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(24),
-  ]);
+  const { data: eventsData } = await supabase
+    .from("events")
+    .select("*")
+    .eq("is_published", true)
+    .order("date", { ascending: false });
 
   const events = (eventsData ?? []) as DocaEvent[];
-  const media = (mediaData ?? []) as DocaMedia[];
+  const publishedIds = events.map((e) => e.id);
 
-  // Contagem de mídias por evento (uma query só, agregada em memória).
-  const { data: countRows } = await supabase
-    .from("media")
-    .select("event_id")
-    .eq("status", "approved");
+  // Só mostra mídia de evento publicado: esconder um evento tem que
+  // esconder as fotos dele também.
+  const [{ data: mediaData }, { data: countRows }] =
+    publishedIds.length === 0
+      ? [{ data: [] }, { data: [] }]
+      : await Promise.all([
+          supabase
+            .from("media")
+            .select("*")
+            .eq("status", "approved")
+            .in("event_id", publishedIds)
+            .order("created_at", { ascending: false })
+            .limit(24),
+          supabase
+            .from("media")
+            .select("event_id")
+            .eq("status", "approved")
+            .in("event_id", publishedIds),
+        ]);
+
+  const media = (mediaData ?? []) as DocaMedia[];
 
   const counts = new Map<string, number>();
   for (const row of (countRows ?? []) as { event_id: string }[]) {

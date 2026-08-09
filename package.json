@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:rls": "node scripts/check-rls.mjs",
+    "check:auth": "node scripts/check-auth-flow.mjs",
+    "check:regressions": "node scripts/check-regressions.mjs",
+    "check": "npm run lint && tsc --noEmit && npm run check:rls && npm run check:regressions"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
