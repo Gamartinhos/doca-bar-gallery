@@ -1,0 +1,524 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   DOCA BAR — sistema visual
+   underground · grafite · neon · alto contraste · streetwear
+   ===================================================================== */
+
+@theme {
+  /* --- superfícies (o breu) --- */
+  --color-void: #050309;
+  --color-ink: #0a0611;
+  --color-smoke: #140e1e;
+  --color-concrete: #1d1628;
+  --color-bone: #ece6da;
+  --color-ash: #8a7f96;
+
+  /* --- neon (a luz da casa) --- */
+  --color-neon-purple: #b026ff;
+  --color-neon-magenta: #ff2fd0;
+  --color-neon-blue: #1fe0ff;
+  --color-neon-red: #ff1f43;
+  --color-neon-green: #39ff5a;
+  --color-acid: #d8ff00;
+
+  /* --- tipografia --- */
+  --font-display: var(--font-anton), "Impact", sans-serif;
+  --font-tag: var(--font-marker), cursive;
+  --font-body: var(--font-condensed), "Arial Narrow", sans-serif;
+  --font-tech: var(--font-tech), ui-monospace, monospace;
+
+  /* --- movimento --- */
+  --animate-flicker: flicker 4s linear infinite;
+  --animate-marquee: marquee 28s linear infinite;
+  --animate-buzz: buzz 0.25s steps(2) infinite;
+  --animate-rise: rise 0.6s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+@keyframes flicker {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+  20%,
+  24%,
+  55% {
+    opacity: 0.72;
+    filter: brightness(0.7);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes buzz {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-1px, 1px);
+  }
+  100% {
+    transform: translate(1px, -1px);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes grain-shift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-4%, -4%);
+  }
+  30% {
+    transform: translate(3%, -2%);
+  }
+  50% {
+    transform: translate(-2%, 4%);
+  }
+  70% {
+    transform: translate(4%, 2%);
+  }
+  90% {
+    transform: translate(-3%, 1%);
+  }
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-void);
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-bone);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    letter-spacing: 0.01em;
+    overflow-x: hidden;
+    /* mancha de neon roxo/vermelho vazando do teto */
+    background-image:
+      radial-gradient(
+        ellipse 70% 50% at 15% -10%,
+        color-mix(in oklab, var(--color-neon-purple) 30%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 60% 45% at 92% 4%,
+        color-mix(in oklab, var(--color-neon-red) 20%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 90% 60% at 50% 108%,
+        color-mix(in oklab, var(--color-neon-blue) 14%, transparent),
+        transparent 70%
+      );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    line-height: 0.86;
+    letter-spacing: -0.015em;
+  }
+
+  ::selection {
+    background: var(--color-neon-magenta);
+    color: var(--color-void);
+  }
+
+  /* barra de rolagem estilo fita de neon */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-void);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      var(--color-neon-purple),
+      var(--color-neon-magenta)
+    );
+    border: 2px solid var(--color-void);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-acid);
+    outline-offset: 3px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: var(--font-body);
+  }
+}
+
+/* =====================================================================
+   TEXTURAS — grão de filme, scanlines, concreto pichado
+   ===================================================================== */
+
+@layer components {
+  /* Grão sobre tudo: a foto de festa nunca é limpa. */
+  .grain::after {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.16;
+    mix-blend-mode: overlay;
+    animation: grain-shift 700ms steps(1) infinite;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .scanlines {
+    position: relative;
+  }
+  .scanlines::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28) 0px,
+      rgba(0, 0, 0, 0.28) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.5;
+  }
+
+  /* parede de concreto com camadas de tinta */
+  .concrete {
+    background-color: var(--color-ink);
+    background-image:
+      repeating-linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.022) 0px,
+        rgba(255, 255, 255, 0.022) 1px,
+        transparent 1px,
+        transparent 9px
+      ),
+      repeating-linear-gradient(
+        -20deg,
+        rgba(176, 38, 255, 0.05) 0px,
+        rgba(176, 38, 255, 0.05) 2px,
+        transparent 2px,
+        transparent 22px
+      ),
+      radial-gradient(
+        circle at 22% 30%,
+        rgba(255, 47, 208, 0.09),
+        transparent 45%
+      ),
+      radial-gradient(
+        circle at 78% 72%,
+        rgba(31, 224, 255, 0.07),
+        transparent 45%
+      );
+  }
+
+  /* cerca de arame / grade metálica */
+  .fence {
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(236, 230, 218, 0.07) 0px,
+        rgba(236, 230, 218, 0.07) 1px,
+        transparent 1px,
+        transparent 12px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(236, 230, 218, 0.07) 0px,
+        rgba(236, 230, 218, 0.07) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+  }
+
+  /* =================================================================
+     NEON
+     ================================================================= */
+
+  .neon {
+    color: var(--neon, var(--color-neon-magenta));
+    text-shadow:
+      0 0 4px color-mix(in oklab, var(--neon, var(--color-neon-magenta)) 90%, white),
+      0 0 12px var(--neon, var(--color-neon-magenta)),
+      0 0 38px var(--neon, var(--color-neon-magenta)),
+      0 0 80px color-mix(in oklab, var(--neon, var(--color-neon-magenta)) 60%, transparent);
+  }
+
+  .neon-purple {
+    --neon: var(--color-neon-purple);
+  }
+  .neon-magenta {
+    --neon: var(--color-neon-magenta);
+  }
+  .neon-blue {
+    --neon: var(--color-neon-blue);
+  }
+  .neon-red {
+    --neon: var(--color-neon-red);
+  }
+  .neon-green {
+    --neon: var(--color-neon-green);
+  }
+
+  /* moldura de tubo de neon */
+  .neon-frame {
+    border: 1px solid var(--neon, var(--color-neon-purple));
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--neon, var(--color-neon-purple)) 40%, transparent),
+      0 0 14px color-mix(in oklab, var(--neon, var(--color-neon-purple)) 55%, transparent),
+      inset 0 0 22px color-mix(in oklab, var(--neon, var(--color-neon-purple)) 20%, transparent);
+  }
+
+  /* título com aberração cromática (impressão desalinhada) */
+  .chromatic {
+    position: relative;
+    color: var(--color-bone);
+    text-shadow:
+      2px 0 0 color-mix(in oklab, var(--color-neon-red) 85%, transparent),
+      -2px 0 0 color-mix(in oklab, var(--color-neon-blue) 85%, transparent),
+      0 0 26px rgba(176, 38, 255, 0.45);
+  }
+
+  /* contorno vazado, estilo lambe-lambe */
+  .outline-type {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-bone);
+    paint-order: stroke fill;
+  }
+
+  /* =================================================================
+     COMPONENTES DE RUA
+     ================================================================= */
+
+  /* fita crepe colada na parede */
+  .tape {
+    position: relative;
+  }
+  .tape::before,
+  .tape::after {
+    content: "";
+    position: absolute;
+    width: 74px;
+    height: 24px;
+    background: rgba(236, 230, 218, 0.16);
+    border-left: 1px dashed rgba(236, 230, 218, 0.25);
+    border-right: 1px dashed rgba(236, 230, 218, 0.25);
+    backdrop-filter: blur(1px);
+    z-index: 3;
+  }
+  .tape::before {
+    top: -11px;
+    left: -14px;
+    transform: rotate(-28deg);
+  }
+  .tape::after {
+    bottom: -11px;
+    right: -14px;
+    transform: rotate(-28deg);
+  }
+
+  /* faixa de alerta diagonal (fita de obra) */
+  .hazard {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--color-acid) 0px,
+      var(--color-acid) 14px,
+      var(--color-void) 14px,
+      var(--color-void) 28px
+    );
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: var(--animate-marquee);
+  }
+
+  /* botão-cartaz */
+  .btn-street {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.9rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-void);
+    background: var(--color-bone);
+    border: 1px solid var(--color-void);
+    box-shadow: 5px 5px 0 0 var(--neon, var(--color-neon-magenta));
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.12s ease,
+      background-color 0.12s ease;
+    cursor: pointer;
+  }
+  .btn-street:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 var(--neon, var(--color-neon-magenta));
+    background: var(--neon, var(--color-neon-magenta));
+    color: var(--color-void);
+  }
+  .btn-street:active {
+    transform: translate(5px, 5px);
+    box-shadow: 0 0 0 0 var(--neon, var(--color-neon-magenta));
+  }
+  .btn-street:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 5px 5px 0 0 var(--color-concrete);
+  }
+
+  /* botão fantasma, contorno neon */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-bone);
+    border: 1px solid color-mix(in oklab, var(--color-bone) 35%, transparent);
+    background: color-mix(in oklab, var(--color-void) 60%, transparent);
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+  .btn-ghost:hover {
+    border-color: var(--neon, var(--color-neon-blue));
+    color: var(--neon, var(--color-neon-blue));
+    box-shadow: 0 0 18px
+      color-mix(in oklab, var(--neon, var(--color-neon-blue)) 45%, transparent);
+  }
+
+  /* campo de formulário */
+  .field {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: color-mix(in oklab, var(--color-void) 75%, transparent);
+    border: 1px solid var(--color-concrete);
+    color: var(--color-bone);
+    font-family: var(--font-body);
+    font-size: 1.02rem;
+    letter-spacing: 0.02em;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .field::placeholder {
+    color: var(--color-ash);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-neon-magenta);
+    box-shadow: 0 0 0 1px var(--color-neon-magenta),
+      0 0 20px rgba(255, 47, 208, 0.28);
+  }
+
+  /* etiqueta técnica (data, hora, contadores) */
+  .stamp {
+    font-family: var(--font-tech);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-ash);
+  }
+
+  /* card de evento */
+  .card-slab {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-ink);
+    border: 1px solid var(--color-concrete);
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .card-slab:hover {
+    transform: translateY(-4px);
+    border-color: var(--neon, var(--color-neon-purple));
+    box-shadow: 0 18px 50px -18px
+      color-mix(in oklab, var(--neon, var(--color-neon-purple)) 70%, transparent);
+  }
+}
+
+/* =====================================================================
+   UTILITÁRIOS EXTRAS
+   ===================================================================== */
+
+@utility skew-tag {
+  transform: skewX(-9deg);
+}
+
+@utility text-balance-tight {
+  text-wrap: balance;
+}
+
+/* respeita quem não quer movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain::after {
+    animation: none;
+  }
+}
