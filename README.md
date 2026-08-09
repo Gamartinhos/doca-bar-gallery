@@ -6,6 +6,29 @@ com área restrita para fotógrafos e painel de administração.
 Estética: underground, escura, neon (roxo/azul/vermelho), texturas de grafite e
 tipografia de cartaz de rua. Nada de clean.
 
+**No ar:** https://doca-bar-gallery.vercel.app
+**Código:** https://github.com/Gamartinhos/doca-bar-gallery
+
+---
+
+## ⚠️ Primeiro acesso — leia antes de tudo
+
+O **primeiro e-mail que se cadastrar vira admin automaticamente**. Ninguém se
+cadastrou ainda, então:
+
+1. Abra https://doca-bar-gallery.vercel.app/login?modo=cadastro
+2. Crie sua conta — ela já entra como **admin aprovado**.
+3. Do segundo cadastro em diante, todo mundo entra como fotógrafo na fila,
+   esperando você liberar em `/dashboard/admin`.
+
+Se alguém se cadastrar antes de você, essa pessoa fica com o admin. Para
+corrigir, rode:
+
+```sql
+update public.users set role = 'admin', is_approved = true
+where email = 'seu@email.com';
+```
+
 ---
 
 ## Níveis de acesso
@@ -54,12 +77,30 @@ node scripts/supabase-sql.mjs supabase/migrations/0002_seed_eventos.sql
 ### Conferindo a segurança
 
 ```bash
-node scripts/check-rls.mjs
+npm run check              # lint + tsc + RLS + regressões
+npm run check:rls          # RLS com a chave anônima (a que vai pro browser)
+npm run check:regressions  # trava as correções da revisão
+npm run check:auth         # ciclo de conta ponta a ponta
 ```
 
-Roda uma bateria de checagens com a **chave anônima** (a mesma que vai pro browser):
-confirma que o público lê o que deve ler e que não consegue escrever, escalar
-privilégio, ler a tabela `users`, nem ver evento despublicado.
+- `check:rls` confirma que o público lê o que deve e **não** consegue escrever,
+  escalar privilégio, ler a tabela `users` nem ver evento despublicado.
+- `check:auth` cria dois usuários descartáveis para provar o bootstrap do admin,
+  a fila de aprovação e os bloqueios — e **apaga os dois no fim**, devolvendo o
+  sistema ao estado zero.
+- `check:regressions` trava as três correções mais sensíveis (open redirect,
+  mídia de evento oculto, fotógrafo suspenso).
+
+### Configuração de Auth
+
+`scripts/configure-auth.mjs` ajusta o projeto Supabase: define a `site_url`, a
+lista de redirects permitidos e liga o **autoconfirm de e-mail**.
+
+O autoconfirm é proposital: o portão de segurança aqui é a **aprovação pelo
+admin**, não a confirmação de e-mail. Sem SMTP próprio, o SMTP compartilhado do
+Supabase entrega pouquíssimos e-mails por hora e só para membros da organização —
+na prática nenhum fotógrafo conseguiria se cadastrar. Se um dia configurarem um
+SMTP próprio, basta voltar `mailer_autoconfirm` para `false`.
 
 ---
 
