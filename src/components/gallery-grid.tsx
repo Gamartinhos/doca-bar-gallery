@@ -13,16 +13,22 @@ export interface GalleryItem {
   eventTitle?: string | null;
 }
 
-/** Padrão de alturas para quebrar o ritmo do grid (parede de lambe-lambe). */
+/**
+ * Padrão de alturas para quebrar o ritmo do grid (parede de lambe-lambe).
+ *
+ * A linha base é 90px (mobile) / 120px (desktop), então um span de 2 a 4
+ * dá ladrilhos de ~250px a ~530px de altura — proporção de foto de verdade.
+ * Com uma linha base pequena demais o ladrilho vira uma tarja achatada.
+ */
 const SPANS = [
-  "row-span-2",
   "row-span-3",
-  "row-span-2",
   "row-span-4",
   "row-span-3",
-  "row-span-2",
+  "row-span-5",
+  "row-span-4",
   "row-span-3",
-  "row-span-2",
+  "row-span-4",
+  "row-span-3",
 ];
 
 const TILTS = ["-rotate-1", "rotate-1", "rotate-0", "-rotate-2", "rotate-2"];
@@ -129,7 +135,7 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
 
   return (
     <>
-      <div className="grid auto-rows-[34px] grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+      <div className="grid auto-rows-[70px] grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:auto-rows-[90px] lg:grid-cols-4">
         {items.map((item, index) => (
           <button
             key={item.id}
