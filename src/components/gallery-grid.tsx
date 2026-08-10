@@ -211,6 +211,16 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
           className="fixed inset-0 z-[200] flex items-center justify-center bg-void/97 p-4 backdrop-blur-sm focus:outline-none"
           onClick={close}
         >
+          <a
+            href={active.url}
+            download={`doca-bar-${active.id}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Baixar arquivo"
+            className="absolute right-16 top-4 z-10 font-display text-4xl leading-none text-bone transition-colors hover:text-neon-green"
+          >
+            ↓
+          </a>
           <button
             type="button"
             onClick={close}
