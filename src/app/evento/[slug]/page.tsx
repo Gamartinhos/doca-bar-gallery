@@ -50,6 +50,17 @@ export default async function EventPage({ params }: { params: Params }) {
 
   if (!event) notFound();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  let userRole = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+    userRole = profile?.role;
+  }
+
   const { data: mediaData } = await supabase
     .from("media")
     .select("*")
@@ -84,6 +95,7 @@ export default async function EventPage({ params }: { params: Params }) {
     caption: m.caption,
     credit: m.photographer_id ? (creditById.get(m.photographer_id) ?? null) : null,
     eventTitle: event.title,
+    canDelete: userRole === "admin" || (!!user && user.id === m.photographer_id),
   }));
 
   const formatted = new Date(`${event.date}T12:00:00`).toLocaleDateString(
@@ -201,7 +213,7 @@ export default async function EventPage({ params }: { params: Params }) {
                 <h2 className="font-display text-3xl text-neon-purple mb-8 border-b border-concrete pb-4">
                   {photographerName !== "Mídia Oficial" ? "Por: " : ""}{photographerName}
                 </h2>
-                <GalleryGrid items={groupItems} />
+                <GalleryGrid items={groupItems} eventSlug={slug} />
               </div>
             ));
           })()}

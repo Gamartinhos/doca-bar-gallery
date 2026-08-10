@@ -11,6 +11,7 @@ export interface GalleryItem {
   caption?: string | null;
   credit?: string | null;
   eventTitle?: string | null;
+  canDelete?: boolean;
 }
 
 /**
@@ -33,8 +34,11 @@ const SPANS = [
 
 const TILTS = ["-rotate-1", "rotate-1", "rotate-0", "-rotate-2", "rotate-2"];
 
-export function GalleryGrid({ items }: { items: GalleryItem[] }) {
+import { deleteMediaAction } from "@/app/evento/[slug]/actions";
+
+export function GalleryGrid({ items, eventSlug }: { items: GalleryItem[], eventSlug?: string }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   // De onde o usuário veio, pra devolver o foco ao fechar.
   const openerRef = useRef<HTMLElement | null>(null);
@@ -133,6 +137,20 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
 
   const active = openIndex === null ? null : items[openIndex];
 
+  const handleDelete = async () => {
+    if (!active || !eventSlug) return;
+    if (!confirm("Tem certeza que deseja apagar permanentemente este arquivo?")) return;
+    setIsDeleting(true);
+    const res = await deleteMediaAction(active.id, eventSlug);
+    setIsDeleting(false);
+    if (res?.success) {
+      close();
+    } else {
+      alert(res?.error || "Falha ao excluir.");
+    }
+  };
+
+
   return (
     <>
       <div className="grid auto-rows-[70px] grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:auto-rows-[90px] lg:grid-cols-4">
@@ -221,6 +239,17 @@ export function GalleryGrid({ items }: { items: GalleryItem[] }) {
           >
             ↓
           </a>
+          {active.canDelete && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              aria-label="Apagar"
+              className="absolute right-28 top-4 z-10 font-display text-4xl leading-none text-bone transition-colors hover:text-neon-red disabled:opacity-50"
+            >
+              {isDeleting ? "..." : "🗑"}
+            </button>
+          )}
           <button
             type="button"
             onClick={close}
