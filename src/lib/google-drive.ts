@@ -35,11 +35,14 @@ function privateKey(): string | null {
 }
 
 export function isDriveConfigured(): boolean {
-  return Boolean(
-    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-      privateKey() &&
-      process.env.GOOGLE_DRIVE_FOLDER_ID,
-  );
+  const hasOAuth = 
+    process.env.GOOGLE_REFRESH_TOKEN && 
+    process.env.GOOGLE_CLIENT_ID && 
+    process.env.GOOGLE_CLIENT_SECRET;
+
+  const hasSA = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && privateKey();
+
+  return Boolean((hasOAuth || hasSA) && process.env.GOOGLE_DRIVE_FOLDER_ID);
 }
 
 function base64url(input: Buffer | string): string {
@@ -50,35 +53,48 @@ function base64url(input: Buffer | string): string {
     .replace(/=+$/, "");
 }
 
-/** Troca um JWT assinado por um access token OAuth2. */
+/** Troca um JWT ou Refresh Token por um access token OAuth2. */
 async function getAccessToken(): Promise<string> {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
-  const key = privateKey()!;
+  let body: URLSearchParams;
 
-  const now = Math.floor(Date.now() / 1000);
-  const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claim = base64url(
-    JSON.stringify({
-      iss: email,
-      scope: SCOPE,
-      aud: TOKEN_URL,
-      exp: now + 3600,
-      iat: now,
-    }),
-  );
+  if (process.env.GOOGLE_REFRESH_TOKEN) {
+    body = new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID!,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN!,
+      grant_type: "refresh_token",
+    });
+  } else {
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
+    const key = privateKey()!;
 
-  const signer = createSign("RSA-SHA256");
-  signer.update(`${header}.${claim}`);
-  const signature = base64url(signer.sign(key));
-  const assertion = `${header}.${claim}.${signature}`;
+    const now = Math.floor(Date.now() / 1000);
+    const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+    const claim = base64url(
+      JSON.stringify({
+        iss: email,
+        scope: SCOPE,
+        aud: TOKEN_URL,
+        exp: now + 3600,
+        iat: now,
+      }),
+    );
+
+    const signer = createSign("RSA-SHA256");
+    signer.update(`${header}.${claim}`);
+    const signature = base64url(signer.sign(key));
+    const assertion = `${header}.${claim}.${signature}`;
+
+    body = new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion,
+    });
+  }
 
   const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion,
-    }),
+    body,
   });
 
   if (!res.ok) {
