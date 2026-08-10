@@ -107,8 +107,9 @@ export async function createEvent(
     description: description || null,
     cover_image: coverImage || null,
     interest_type: (["none", "link", "count", "lead"] as const).includes(interestType as any)
-      ? interestType
+      ? (interestType as "none" | "link" | "count" | "lead")
       : "none",
+    interest_count: 0,
     ticket_url: ticketUrl || null,
     instagram_url: instagramUrl || null,
     accent: (["purple", "blue", "red", "green"] as const).includes(
