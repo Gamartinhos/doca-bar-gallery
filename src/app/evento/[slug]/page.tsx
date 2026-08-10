@@ -122,24 +122,38 @@ export default async function EventPage({ params }: { params: Params }) {
         />
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-          <Link
-            href="/"
-            className="stamp inline-block transition-colors hover:text-neon-blue"
-          >
-            ← Todas as noites
-          </Link>
+          <div className="grid gap-12 lg:grid-cols-[1fr_min(400px,100%)] lg:items-center">
+            <div>
+              <Link
+                href="/"
+                className="stamp inline-block transition-colors hover:text-neon-blue"
+              >
+                ← Todas as noites
+              </Link>
 
-          <p className="stamp mt-8 text-neon-green">{formatted}</p>
+              <p className="stamp mt-8 text-neon-green">{formatted}</p>
 
-          <h1 className="chromatic mt-3 text-balance-tight font-display text-[clamp(3rem,10vw,7.5rem)] leading-[0.82]">
-            {event.title}
-          </h1>
+              <h1 className="chromatic mt-3 text-balance-tight font-display text-[clamp(3rem,10vw,7.5rem)] leading-[0.82]">
+                {event.title}
+              </h1>
 
-          {event.description && (
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-bone/75">
-              {event.description}
-            </p>
-          )}
+              {event.description && (
+                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-bone/75">
+                  {event.description}
+                </p>
+              )}
+            </div>
+
+            {event.cover_image && (
+              <div className="relative aspect-[4/5] w-full border border-concrete bg-void p-2">
+                <img
+                  src={event.cover_image}
+                  alt={event.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+          </div>
 
           {!isUpcoming && (
             <dl className="mt-12 flex flex-wrap gap-x-12 gap-y-6 border-t border-concrete pt-8">
@@ -166,37 +180,47 @@ export default async function EventPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      {event.instagram_url && (
-        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-           <div className="flex flex-col items-center border border-concrete p-8 bg-void/50">
-             <h2 className="font-display text-3xl mb-4 text-neon-blue">Post Oficial</h2>
-             <a href={event.instagram_url} target="_blank" rel="noreferrer" className="btn-ghost">
-               Ver no Instagram
-             </a>
-           </div>
+      {(event.instagram_url || (isUpcoming && event.interest_type !== 'none')) && (
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+          <div className="flex flex-col items-center justify-center gap-12 border border-concrete bg-void p-8 md:flex-row md:gap-24 md:p-12">
+            {event.instagram_url && (
+              <div className="flex flex-col items-center gap-6 text-center">
+                <h2 className="font-display text-3xl text-neon-blue md:text-4xl">Post Oficial</h2>
+                <a href={event.instagram_url} target="_blank" rel="noreferrer" className="btn-ghost">
+                  Ver no Instagram
+                </a>
+              </div>
+            )}
+
+            {event.instagram_url && isUpcoming && event.interest_type !== 'none' && (
+              <div className="hidden h-32 w-px bg-concrete md:block" />
+            )}
+
+            {isUpcoming && event.interest_type !== 'none' && (
+              <div className="flex flex-col items-center gap-6 text-center">
+                <h2 className="font-display text-3xl text-bone md:text-4xl">Garanta seu lugar</h2>
+                {event.interest_type === 'link' && event.ticket_url && (
+                  <a href={event.ticket_url} target="_blank" rel="noreferrer" className="btn-street neon-green text-lg px-8 py-4">
+                    Comprar Ingressos
+                  </a>
+                )}
+                {event.interest_type === 'count' && (
+                  <button className="btn-street neon-purple text-lg px-8 py-4">
+                    Vou Colar ({event.interest_count})
+                  </button>
+                )}
+                {event.interest_type === 'lead' && (
+                  <button className="btn-street neon-red text-lg px-8 py-4">
+                    Entrar na Lista VIP
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </section>
       )}
 
-      {isUpcoming ? (
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 text-center">
-          <h2 className="font-display text-4xl mb-6 text-bone">Demonstre Interesse</h2>
-          {event.interest_type === 'link' && event.ticket_url && (
-            <a href={event.ticket_url} target="_blank" rel="noreferrer" className="btn-street neon-green text-xl px-12 py-6">
-              Comprar Ingressos
-            </a>
-          )}
-          {event.interest_type === 'count' && (
-            <button className="btn-street neon-purple text-xl px-12 py-6">
-              Vou Colar ({event.interest_count})
-            </button>
-          )}
-          {event.interest_type === 'lead' && (
-             <button className="btn-street neon-red text-xl px-12 py-6">
-              Entrar na Lista VIP
-            </button>
-          )}
-        </section>
-      ) : (
+      {!isUpcoming && (
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
           {(() => {
             const groupedItems = new Map<string, typeof items>();

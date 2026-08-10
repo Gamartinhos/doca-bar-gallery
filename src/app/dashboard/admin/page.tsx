@@ -267,7 +267,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               </span>{" "}
               <span className="text-bone">NOITE</span>
             </h2>
-            <EventForm initialData={editEvent} />
+            <EventForm key={editEvent?.id || "new"} initialData={editEvent} />
           </div>
         </aside>
       </div>
