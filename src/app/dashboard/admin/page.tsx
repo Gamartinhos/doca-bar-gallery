@@ -11,9 +11,11 @@ import { EventForm } from "./event-form";
 export const metadata: Metadata = { title: "Administração" };
 export const revalidate = 0;
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const admin = await requireAdmin();
   const supabase = await createClient();
+
+  const { edit: editId } = await searchParams;
 
   const [{ data: usersData }, { data: eventsData }, { data: mediaRows }] =
     await Promise.all([
@@ -32,6 +34,8 @@ export default async function AdminPage() {
 
   const pending = users.filter((u) => !u.is_approved);
   const active = users.filter((u) => u.is_approved);
+
+  const editEvent = editId ? events.find((e) => e.id === editId) : undefined;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -230,6 +234,13 @@ export default async function AdminPage() {
                         </button>
                       </form>
 
+                      <Link
+                        href={`/dashboard/admin?edit=${e.id}`}
+                        className="btn-ghost text-bone hover:text-neon-purple !px-3 !py-1.5 !text-xs"
+                      >
+                        Editar
+                      </Link>
+
                       <form action={deleteEvent}>
                         <input type="hidden" name="event_id" value={e.id} />
                         <button
@@ -251,10 +262,12 @@ export default async function AdminPage() {
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="tape concrete border border-concrete p-6">
             <h2 className="mb-6 font-display text-3xl">
-              <span className="neon neon-purple">ABRIR</span>{" "}
+              <span className="neon neon-purple">
+                {editEvent ? "EDITAR" : "ABRIR"}
+              </span>{" "}
               <span className="text-bone">NOITE</span>
             </h2>
-            <EventForm />
+            <EventForm initialData={editEvent} />
           </div>
         </aside>
       </div>

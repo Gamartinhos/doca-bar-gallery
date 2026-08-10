@@ -2,8 +2,9 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-
-import { createEvent, type ActionState } from "./actions";
+import Link from "next/link";
+import { createEvent, updateEvent, type ActionState } from "./actions";
+import type { DocaEvent } from "@/lib/database.types";
 
 const EMPTY: ActionState = {};
 
@@ -14,7 +15,7 @@ const ACCENTS = [
   { value: "green", label: "Verde", swatch: "bg-neon-green" },
 ];
 
-function Submit() {
+function Submit({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -22,16 +23,17 @@ function Submit() {
       disabled={pending}
       className="btn-street neon-purple w-full"
     >
-      {pending ? "Abrindo…" : "Abrir evento"}
+      {pending ? "Salvando…" : isEditing ? "Salvar Alterações" : "Abrir evento"}
     </button>
   );
 }
 
-export function EventForm() {
-  const [state, action] = useActionState(createEvent, EMPTY);
+export function EventForm({ initialData }: { initialData?: DocaEvent }) {
+  const [state, action] = useActionState(initialData ? updateEvent : createEvent, EMPTY);
 
   return (
     <form action={action} className="space-y-4">
+      {initialData && <input type="hidden" name="event_id" value={initialData.id} />}
       <div>
         <label htmlFor="title" className="stamp mb-2 block">
           Nome da noite *
@@ -40,6 +42,7 @@ export function EventForm() {
           id="title"
           name="title"
           required
+          defaultValue={initialData?.title}
           placeholder="Ex.: Baile do Bigode"
           className="field"
         />
@@ -50,7 +53,7 @@ export function EventForm() {
           <label htmlFor="date" className="stamp mb-2 block">
             Data *
           </label>
-          <input id="date" name="date" type="date" required className="field" />
+          <input id="date" name="date" type="date" required defaultValue={initialData?.date} className="field" />
         </div>
 
         <fieldset>
@@ -66,7 +69,7 @@ export function EventForm() {
                   type="radio"
                   name="accent"
                   value={a.value}
-                  defaultChecked={i === 0}
+                  defaultChecked={initialData ? initialData.accent === a.value : i === 0}
                   className="peer sr-only"
                 />
                 <span className="sr-only">{a.label}</span>
@@ -99,6 +102,7 @@ export function EventForm() {
           name="cover_image"
           type="url"
           placeholder="https://…"
+          defaultValue={initialData?.cover_image || ""}
           className="field"
         />
       </div>
@@ -112,13 +116,14 @@ export function EventForm() {
           name="description"
           rows={3}
           placeholder="Quem toca, quem discoteca, o que rola"
+          defaultValue={initialData?.description || ""}
           className="field resize-y"
         />
       </div>
 
       <fieldset>
         <legend className="stamp mb-2">Chamada para Ação (CTA)</legend>
-        <select name="interest_type" className="field mb-4">
+        <select name="interest_type" className="field mb-4" defaultValue={initialData?.interest_type || "none"}>
           <option value="none">Nenhum</option>
           <option value="link">Link de Ingressos</option>
           <option value="count">Botão "Vou Colar" (Contador)</option>
@@ -129,6 +134,7 @@ export function EventForm() {
           name="ticket_url"
           type="url"
           placeholder="URL dos ingressos (se escolheu Link)"
+          defaultValue={initialData?.ticket_url || ""}
           className="field"
         />
       </fieldset>
@@ -141,7 +147,8 @@ export function EventForm() {
           id="instagram_url"
           name="instagram_url"
           type="url"
-          placeholder="https://instagram.com/p/..."
+          placeholder="https://instagram.com/…"
+          defaultValue={initialData?.instagram_url || ""}
           className="field"
         />
       </div>
@@ -163,7 +170,14 @@ export function EventForm() {
         </p>
       )}
 
-      <Submit />
+      <Submit isEditing={!!initialData} />
+      {initialData && (
+        <div className="text-center">
+          <Link href="/dashboard/admin" className="font-tech text-xs text-bone hover:underline">
+            Cancelar Edição
+          </Link>
+        </div>
+      )}
     </form>
   );
 }

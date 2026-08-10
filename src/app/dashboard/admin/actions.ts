@@ -129,6 +129,55 @@ export async function createEvent(
   return { message: `Evento "${title}" no ar.` };
 }
 
+export async function updateEvent(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const admin = await requireAdmin();
+
+  const eventId = String(formData.get("event_id") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim();
+  const date = String(formData.get("date") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const coverImage = String(formData.get("cover_image") ?? "").trim();
+  const accent = String(formData.get("accent") ?? "purple");
+  const interestType = String(formData.get("interest_type") ?? "none");
+  const ticketUrl = String(formData.get("ticket_url") ?? "").trim();
+  const instagramUrl = String(formData.get("instagram_url") ?? "").trim();
+
+  if (!eventId) return { error: "ID do evento não encontrado." };
+  if (!title) return { error: "O evento precisa de um nome." };
+  if (!date) return { error: "Escolha a data da noite." };
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("events").update({
+    title,
+    date,
+    description: description || null,
+    cover_image: coverImage || null,
+    interest_type: (["none", "link", "count", "lead"] as const).includes(interestType as any)
+      ? (interestType as "none" | "link" | "count" | "lead")
+      : "none",
+    ticket_url: ticketUrl || null,
+    instagram_url: instagramUrl || null,
+    accent: (["purple", "blue", "red", "green"] as const).includes(
+      accent as "purple",
+    )
+      ? (accent as "purple" | "blue" | "red" | "green")
+      : "purple",
+  }).eq("id", eventId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard/admin");
+  revalidatePath("/", "layout");
+
+  return { message: "success" };
+}
+
 export async function togglePublished(formData: FormData): Promise<void> {
   await requireAdmin();
 
