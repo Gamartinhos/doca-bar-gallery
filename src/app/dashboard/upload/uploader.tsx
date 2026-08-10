@@ -312,7 +312,7 @@ export function Uploader({
         </p>
         {driveEnabled ? (
           <p className="stamp mt-1 text-neon-green">
-            destino: Google Drive da casa · até 50MB por arquivo
+            destino: Google Drive da casa · até 1GB por arquivo
           </p>
         ) : (
           <p className="stamp mt-1 text-neon-blue">
