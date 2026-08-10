@@ -10,6 +10,7 @@ export type UserRole = "admin" | "photographer";
 export type MediaType = "photo" | "video";
 export type MediaStatus = "pending" | "approved" | "rejected";
 export type EventAccent = "purple" | "blue" | "red" | "green";
+export type InterestType = "none" | "link" | "count" | "lead";
 
 export type DocaUser = {
   id: string;
@@ -30,7 +31,36 @@ export type DocaEvent = {
   cover_image: string | null;
   accent: EventAccent;
   is_published: boolean;
+  ticket_url: string | null;
+  interest_type: InterestType;
+  interest_count: number;
+  instagram_url: string | null;
   created_by: string | null;
+  created_at: string;
+};
+
+export type MenuCategory = {
+  id: string;
+  name: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export type MenuItem = {
+  id: string;
+  category_id: string;
+  name: string;
+  description: string | null;
+  price: number | null;
+  is_available: boolean;
+  created_at: string;
+};
+
+export type EventLead = {
+  id: string;
+  event_id: string;
+  name: string;
+  whatsapp: string;
   created_at: string;
 };
 
@@ -80,6 +110,40 @@ export interface Database {
             referencedRelation: "users";
             referencedColumns: ["id"];
           },
+        ];
+      };
+      menu_categories: {
+        Row: MenuCategory;
+        Insert: Omit<MenuCategory, "id" | "created_at"> & Partial<Pick<MenuCategory, "id" | "created_at">>;
+        Update: Partial<MenuCategory>;
+        Relationships: [];
+      };
+      menu_items: {
+        Row: MenuItem;
+        Insert: Omit<MenuItem, "id" | "created_at"> & Partial<Pick<MenuItem, "id" | "created_at">>;
+        Update: Partial<MenuItem>;
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "menu_categories";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      event_leads: {
+        Row: EventLead;
+        Insert: Omit<EventLead, "id" | "created_at"> & Partial<Pick<EventLead, "id" | "created_at">>;
+        Update: Partial<EventLead>;
+        Relationships: [
+          {
+            foreignKeyName: "event_leads_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          }
         ];
       };
       media: {

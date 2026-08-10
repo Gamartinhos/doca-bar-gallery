@@ -106,6 +106,36 @@ export function EventForm() {
         />
       </div>
 
+      <fieldset>
+        <legend className="stamp mb-2">Chamada para Ação (CTA)</legend>
+        <select name="interest_type" className="field mb-4 text-black">
+          <option value="none">Nenhum</option>
+          <option value="link">Link de Ingressos</option>
+          <option value="count">Botão "Vou Colar" (Contador)</option>
+          <option value="lead">Lista VIP (Captação de Lead)</option>
+        </select>
+        
+        <input
+          name="ticket_url"
+          type="url"
+          placeholder="URL dos ingressos (se escolheu Link)"
+          className="field"
+        />
+      </fieldset>
+
+      <div>
+        <label htmlFor="instagram_url" className="stamp mb-2 block">
+          URL do Post Oficial no Instagram
+        </label>
+        <input
+          id="instagram_url"
+          name="instagram_url"
+          type="url"
+          placeholder="https://instagram.com/p/..."
+          className="field"
+        />
+      </div>
+
       {state.error && (
         <p
           role="alert"

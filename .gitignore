@@ -48,3 +48,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Google Cloud Service Account
+serene-sentinel-*.json

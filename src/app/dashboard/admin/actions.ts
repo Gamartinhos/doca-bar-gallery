@@ -75,6 +75,9 @@ export async function createEvent(
   const description = String(formData.get("description") ?? "").trim();
   const coverImage = String(formData.get("cover_image") ?? "").trim();
   const accent = String(formData.get("accent") ?? "purple");
+  const interestType = String(formData.get("interest_type") ?? "none");
+  const ticketUrl = String(formData.get("ticket_url") ?? "").trim();
+  const instagramUrl = String(formData.get("instagram_url") ?? "").trim();
 
   if (!title) return { error: "O evento precisa de um nome." };
   if (!date) return { error: "Escolha a data da noite." };
@@ -103,6 +106,11 @@ export async function createEvent(
     date,
     description: description || null,
     cover_image: coverImage || null,
+    interest_type: (["none", "link", "count", "lead"] as const).includes(interestType as any)
+      ? interestType
+      : "none",
+    ticket_url: ticketUrl || null,
+    instagram_url: instagramUrl || null,
     accent: (["purple", "blue", "red", "green"] as const).includes(
       accent as "purple",
     )

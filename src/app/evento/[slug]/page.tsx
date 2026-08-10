@@ -91,6 +91,9 @@ export default async function EventPage({ params }: { params: Params }) {
     { day: "2-digit", month: "long", year: "numeric" },
   );
 
+  const today = new Date().toISOString().split("T")[0];
+  const isUpcoming = event.date >= today;
+
   const photoCount = media.filter((m) => m.type === "photo").length;
   const videoCount = media.filter((m) => m.type === "video").length;
 
@@ -126,32 +129,66 @@ export default async function EventPage({ params }: { params: Params }) {
             </p>
           )}
 
-          <dl className="mt-12 flex flex-wrap gap-x-12 gap-y-6 border-t border-concrete pt-8">
-            <div>
-              <dt className="stamp">Fotos</dt>
-              <dd className="font-display text-4xl text-neon-blue">
-                {String(photoCount).padStart(2, "0")}
-              </dd>
-            </div>
-            <div>
-              <dt className="stamp">Vídeos</dt>
-              <dd className="font-display text-4xl text-neon-red">
-                {String(videoCount).padStart(2, "0")}
-              </dd>
-            </div>
-            <div>
-              <dt className="stamp">Fotógrafos</dt>
-              <dd className="font-display text-4xl text-neon-purple">
-                {String(photographerIds.length).padStart(2, "0")}
-              </dd>
-            </div>
-          </dl>
+          {!isUpcoming && (
+            <dl className="mt-12 flex flex-wrap gap-x-12 gap-y-6 border-t border-concrete pt-8">
+              <div>
+                <dt className="stamp">Fotos</dt>
+                <dd className="font-display text-4xl text-neon-blue">
+                  {String(photoCount).padStart(2, "0")}
+                </dd>
+              </div>
+              <div>
+                <dt className="stamp">Vídeos</dt>
+                <dd className="font-display text-4xl text-neon-red">
+                  {String(videoCount).padStart(2, "0")}
+                </dd>
+              </div>
+              <div>
+                <dt className="stamp">Fotógrafos</dt>
+                <dd className="font-display text-4xl text-neon-purple">
+                  {String(photographerIds.length).padStart(2, "0")}
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <GalleryGrid items={items} />
-      </section>
+      {event.instagram_url && (
+        <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+           <div className="flex flex-col items-center border border-concrete p-8 bg-void/50">
+             <h2 className="font-display text-3xl mb-4 text-neon-blue">Post Oficial</h2>
+             <a href={event.instagram_url} target="_blank" rel="noreferrer" className="btn-ghost">
+               Ver no Instagram
+             </a>
+           </div>
+        </section>
+      )}
+
+      {isUpcoming ? (
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 text-center">
+          <h2 className="font-display text-4xl mb-6 text-bone">Demonstre Interesse</h2>
+          {event.interest_type === 'link' && event.ticket_url && (
+            <a href={event.ticket_url} target="_blank" rel="noreferrer" className="btn-street neon-green text-xl px-12 py-6">
+              Comprar Ingressos
+            </a>
+          )}
+          {event.interest_type === 'count' && (
+            <button className="btn-street neon-purple text-xl px-12 py-6">
+              Vou Colar ({event.interest_count})
+            </button>
+          )}
+          {event.interest_type === 'lead' && (
+             <button className="btn-street neon-red text-xl px-12 py-6">
+              Entrar na Lista VIP
+            </button>
+          )}
+        </section>
+      ) : (
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+          <GalleryGrid items={items} />
+        </section>
+      )}
     </>
   );
 }

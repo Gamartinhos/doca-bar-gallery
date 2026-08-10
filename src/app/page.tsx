@@ -18,7 +18,10 @@ export default async function HomePage() {
     .order("date", { ascending: false });
 
   const events = (eventsData ?? []) as DocaEvent[];
-  const publishedIds = events.map((e) => e.id);
+  const today = new Date().toISOString().split("T")[0];
+  const upcomingEvents = events.filter((e) => e.date >= today).reverse(); // closest first
+  const pastEvents = events.filter((e) => e.date < today);
+  const publishedIds = pastEvents.map((e) => e.id);
 
   // Só mostra mídia de evento publicado: esconder um evento tem que
   // esconder as fotos dele também.
@@ -130,28 +133,57 @@ export default async function HomePage() {
 
       <Marquee items={marqueeItems} />
 
-      {/* ================= EVENTOS ================= */}
-      <section id="eventos" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+      {/* ================= AGENDA ================= */}
+      <section id="agenda" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <header className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-concrete pb-5">
           <h2 className="font-display text-5xl sm:text-6xl">
-            <span className="text-bone">AS</span>{" "}
-            <span className="neon neon-purple">NOITES</span>
+            <span className="text-bone">AGENDA</span>
           </h2>
-          <p className="stamp">Arquivo por data · mais recente primeiro</p>
+          <p className="stamp">Próximos eventos</p>
         </header>
 
-        {events.length === 0 ? (
+        {upcomingEvents.length === 0 ? (
           <div className="fence border border-concrete px-6 py-20 text-center">
             <p className="font-display text-4xl text-bone/70">
-              Nenhum evento publicado
-            </p>
-            <p className="stamp mt-3">
-              O admin ainda não abriu a primeira noite
+              Nenhum evento futuro
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
+            {upcomingEvents.map((event) => (
+              <EventCard
+                key={event.id}
+                slug={event.slug}
+                title={event.title}
+                date={event.date}
+                coverImage={event.cover_image}
+                accent={event.accent}
+                mediaCount={0}
+                isUpcoming={true}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ================= GALERIA ================= */}
+      <section id="galeria" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 bg-concrete/5">
+        <header className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-concrete pb-5">
+          <h2 className="font-display text-5xl sm:text-6xl">
+            <span className="text-bone">GALERIA</span>
+          </h2>
+          <p className="stamp">Arquivo por data · mais recente primeiro</p>
+        </header>
+
+        {pastEvents.length === 0 ? (
+          <div className="fence border border-concrete px-6 py-20 text-center">
+            <p className="font-display text-4xl text-bone/70">
+              Nenhuma galeria publicada
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {pastEvents.map((event) => (
               <EventCard
                 key={event.id}
                 slug={event.slug}

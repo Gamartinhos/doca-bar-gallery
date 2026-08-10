@@ -17,6 +17,7 @@ export function EventCard({
   coverImage,
   accent,
   mediaCount,
+  isUpcoming = false,
 }: {
   slug: string;
   title: string;
@@ -24,6 +25,7 @@ export function EventCard({
   coverImage: string | null;
   accent: EventAccent;
   mediaCount: number;
+  isUpcoming?: boolean;
 }) {
   const accentClass = ACCENT_CLASS[accent] ?? "neon-purple";
   const formatted = new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR", {
@@ -68,10 +70,17 @@ export function EventCard({
           <h3 className="chromatic text-balance-tight font-display text-3xl leading-[0.86] sm:text-4xl">
             {title}
           </h3>
-          <p className="stamp mt-2 flex items-center gap-2">
-            <span className="inline-block h-2 w-2 animate-flicker rounded-full bg-current" />
-            {mediaCount} {mediaCount === 1 ? "registro" : "registros"}
-          </p>
+          {isUpcoming ? (
+            <p className="stamp mt-2 flex items-center gap-2 text-bone/80">
+               <span className="inline-block h-2 w-2 animate-flicker rounded-full bg-neon-green" />
+               Em breve
+            </p>
+          ) : (
+            <p className="stamp mt-2 flex items-center gap-2">
+              <span className="inline-block h-2 w-2 animate-flicker rounded-full bg-current" />
+              {mediaCount} {mediaCount === 1 ? "registro" : "registros"}
+            </p>
+          )}
         </div>
       </div>
     </Link>
