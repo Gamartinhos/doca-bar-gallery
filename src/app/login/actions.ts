@@ -79,3 +79,39 @@ export async function signOut(): Promise<void> {
   revalidatePath("/", "layout");
   redirect("/");
 }
+
+export async function recoverPassword(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) return { error: "Preencha o e-mail." };
+
+  const { headers } = await import("next/headers");
+  const host = (await headers()).get("host") || "localhost:3000";
+  const protocol = host.includes("localhost") ? "http" : "https";
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${protocol}://${host}/auth/callback?next=/atualizar-senha`,
+  });
+
+  if (error) return { error: error.message };
+  return { message: "Um link de recuperação foi enviado para o seu e-mail." };
+}
+
+export async function updatePassword(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 6) return { error: "A nova senha precisa de pelo menos 6 caracteres." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}

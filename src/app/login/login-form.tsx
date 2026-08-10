@@ -143,11 +143,20 @@ export function LoginForm({
         <SubmitButton label={isSignUp ? "Pedir credencial" : "Entrar"} />
       </form>
 
-      <p className="stamp mt-8 leading-relaxed">
-        {isSignUp
-          ? "Toda credencial nova entra como fotógrafo e precisa da aprovação do admin antes de subir mídia."
-          : "Esqueceu a senha? Fale com a casa."}
-      </p>
+      <div className="mt-8">
+        {isSignUp ? (
+          <p className="stamp leading-relaxed">
+            Toda credencial nova entra como fotógrafo e precisa da aprovação do admin antes de subir mídia.
+          </p>
+        ) : (
+          <Link
+            href="/recuperar-senha"
+            className="stamp leading-relaxed underline hover:text-neon-magenta"
+          >
+            Esqueceu a senha? Recuperar acesso.
+          </Link>
+        )}
+      </div>
 
       <Link
         href="/"
