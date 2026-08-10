@@ -81,9 +81,19 @@ export function EventForm() {
       </div>
 
       <div>
-        <label htmlFor="cover_image" className="stamp mb-2 block">
-          URL da capa / flyer
-        </label>
+        <div className="mb-2 flex items-baseline justify-between">
+          <label htmlFor="cover_image" className="stamp">
+            URL da capa / flyer
+          </label>
+          <a 
+            href="https://postimages.org/" 
+            target="_blank" 
+            rel="noreferrer"
+            className="font-tech text-xs text-neon-blue hover:underline"
+          >
+            Subir imagem grátis ↗
+          </a>
+        </div>
         <input
           id="cover_image"
           name="cover_image"
@@ -108,7 +118,7 @@ export function EventForm() {
 
       <fieldset>
         <legend className="stamp mb-2">Chamada para Ação (CTA)</legend>
-        <select name="interest_type" className="field mb-4 text-black">
+        <select name="interest_type" className="field mb-4">
           <option value="none">Nenhum</option>
           <option value="link">Link de Ingressos</option>
           <option value="count">Botão "Vou Colar" (Contador)</option>
