@@ -98,17 +98,50 @@ export function Uploader({
     );
   }, []);
 
-  /** Caminho A — servidor: Google Drive via /api/upload. */
+  /** Caminho A — cliente direto pro Google Drive via Resumable Upload. */
   async function sendViaDrive(item: QueueItem) {
-    const body = new FormData();
-    body.append("file", item.file);
-    body.append("event_id", eventId);
-    body.append("caption", caption);
+    // 1. Pedir a URL de upload
+    const initRes = await fetch("/api/upload/init", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: item.file.name,
+        mimeType: item.file.type || "application/octet-stream",
+        size: item.file.size,
+      }),
+    });
+    if (!initRes.ok) {
+      const json = (await initRes.json().catch(() => ({}))) as { error?: string };
+      throw new Error(json.error ?? "Erro ao iniciar upload.");
+    }
+    const { uploadUrl } = await initRes.json();
 
-    const res = await fetch("/api/upload", { method: "POST", body });
-    if (!res.ok) {
-      const json = (await res.json().catch(() => ({}))) as { error?: string };
-      throw new Error(json.error ?? `Falhou (${res.status})`);
+    // 2. Enviar arquivo pro Google Drive (bypass na Vercel)
+    const putRes = await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": item.file.type || "application/octet-stream" },
+      body: item.file,
+    });
+    if (!putRes.ok) throw new Error(`Falha no Google Drive (${putRes.status})`);
+    
+    const driveData = await putRes.json();
+    const fileId = driveData.id;
+    if (!fileId) throw new Error("Google não devolveu o ID do arquivo.");
+
+    // 3. Finalizar no banco de dados
+    const finishRes = await fetch("/api/upload/finish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileId,
+        eventId,
+        caption,
+        isVideo: item.file.type.startsWith("video/"),
+      }),
+    });
+    if (!finishRes.ok) {
+      const json = (await finishRes.json().catch(() => ({}))) as { error?: string };
+      throw new Error(json.error ?? "Erro ao salvar no banco.");
     }
   }
 
@@ -279,7 +312,7 @@ export function Uploader({
         </p>
         {driveEnabled ? (
           <p className="stamp mt-1 text-neon-green">
-            destino: Google Drive da casa · até 4MB por arquivo
+            destino: Google Drive da casa · até 50MB por arquivo
           </p>
         ) : (
           <p className="stamp mt-1 text-neon-blue">

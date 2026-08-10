@@ -190,3 +190,56 @@ export async function uploadToDrive(
     thumbnailUrl: `https://lh3.googleusercontent.com/d/${created.id}=w600`,
   };
 }
+
+export async function initResumableUpload(filename: string, mimeType: string, size: number): Promise<string> {
+  if (!isDriveConfigured()) {
+    throw new Error("Google Drive não configurado.");
+  }
+  const token = await getAccessToken();
+  const metadata = {
+    name: filename,
+    parents: [process.env.GOOGLE_DRIVE_FOLDER_ID!],
+  };
+
+  const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "X-Upload-Content-Type": mimeType,
+      "X-Upload-Content-Length": size.toString()
+    },
+    body: JSON.stringify(metadata)
+  });
+
+  if (!res.ok) {
+    throw new Error(`Init upload falhou (${res.status}): ${await res.text()}`);
+  }
+
+  const location = res.headers.get("Location");
+  if (!location) throw new Error("Google não devolveu a URL de upload resumível.");
+  return location;
+}
+
+export async function finishDriveUpload(fileId: string): Promise<DriveUploadResult> {
+  const token = await getAccessToken();
+  await makePublic(fileId, token);
+
+  return {
+    fileId,
+    url: `https://lh3.googleusercontent.com/d/${fileId}`,
+    thumbnailUrl: `https://lh3.googleusercontent.com/d/${fileId}=w600`,
+  };
+}
+
+export async function deleteDriveFile(fileId: string): Promise<void> {
+  if (!isDriveConfigured()) return;
+  const token = await getAccessToken();
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?supportsAllDrives=true`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Falha ao deletar no Drive (${res.status}): ${await res.text()}`);
+  }
+}
