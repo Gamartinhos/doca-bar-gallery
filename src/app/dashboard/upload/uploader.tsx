@@ -368,7 +368,7 @@ export function Uploader({
                   </button>
                 )}
 
-                <span className="absolute inset-x-0 bottom-0 z-10 truncate bg-void/85 px-2 py-1 font-tech text-[0.6rem] text-ash">
+                <span className="absolute inset-x-0 bottom-0 z-10 max-h-full overflow-y-auto bg-void/85 px-2 py-1 font-tech text-[0.6rem] text-ash whitespace-pre-wrap break-all">
                   {item.error ?? item.file.name}
                 </span>
               </li>
