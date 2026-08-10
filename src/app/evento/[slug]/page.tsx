@@ -186,7 +186,25 @@ export default async function EventPage({ params }: { params: Params }) {
         </section>
       ) : (
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-          <GalleryGrid items={items} />
+          {(() => {
+            const groupedItems = new Map<string, typeof items>();
+            for (const item of items) {
+              const groupName = item.credit || "Mídia Oficial";
+              if (!groupedItems.has(groupName)) {
+                groupedItems.set(groupName, []);
+              }
+              groupedItems.get(groupName)!.push(item);
+            }
+
+            return Array.from(groupedItems.entries()).map(([photographerName, groupItems]) => (
+              <div key={photographerName} className="mb-16 last:mb-0">
+                <h2 className="font-display text-3xl text-neon-purple mb-8 border-b border-concrete pb-4">
+                  {photographerName !== "Mídia Oficial" ? "Por: " : ""}{photographerName}
+                </h2>
+                <GalleryGrid items={groupItems} />
+              </div>
+            ));
+          })()}
         </section>
       )}
     </>
