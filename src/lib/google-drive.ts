@@ -19,7 +19,7 @@ import { createSign } from "node:crypto";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const UPLOAD_URL =
   "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,name,mimeType,webViewLink,webContentLink,thumbnailLink";
-const SCOPE = "https://www.googleapis.com/auth/drive.file";
+const SCOPE = "https://www.googleapis.com/auth/drive";
 
 export interface DriveUploadResult {
   fileId: string;
