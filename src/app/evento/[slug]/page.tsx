@@ -183,43 +183,46 @@ export default async function EventPage({ params }: { params: Params }) {
       </section>
 
       {(event.instagram_url || (isUpcoming && event.interest_type !== 'none')) && (
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-          <div className="flex flex-col items-center justify-center gap-12 border border-concrete bg-void p-8 md:flex-row md:gap-24 md:p-12">
-            {event.instagram_url && (
-              <div className="flex flex-col items-center gap-6 text-center">
-                <h2 className="font-display text-3xl text-neon-blue md:text-4xl">Post Oficial</h2>
-                <a href={event.instagram_url} target="_blank" rel="noreferrer" className="btn-ghost">
-                  Ver no Instagram
-                </a>
-              </div>
-            )}
-
-            {event.instagram_url && isUpcoming && event.interest_type !== 'none' && (
-              <div className="hidden h-32 w-px bg-concrete md:block" />
-            )}
-
-            {isUpcoming && event.interest_type !== 'none' && (
-              <div className="flex flex-col items-center gap-6 text-center">
-                <h2 className="font-display text-3xl text-bone md:text-4xl">Garanta seu lugar</h2>
-                {event.interest_type === 'link' && event.ticket_url && (
-                  <a href={event.ticket_url} target="_blank" rel="noreferrer" className="btn-street neon-green text-lg px-8 py-4">
-                    Comprar Ingressos
+        <>
+          <div className="h-28 md:hidden" aria-hidden="true" />
+          <section className="fixed bottom-0 left-0 right-0 z-40 border-t border-concrete bg-ink/95 p-4 backdrop-blur-md md:static md:mx-auto md:max-w-7xl md:border-none md:bg-transparent md:px-4 md:py-16 md:backdrop-blur-none sm:px-6">
+            <div className="flex flex-row items-center justify-center gap-3 md:gap-24 md:border md:border-concrete md:bg-void md:p-12">
+              {event.instagram_url && (
+                <div className="flex w-full flex-col items-center gap-6 text-center md:w-auto">
+                  <h2 className="hidden font-display text-4xl text-neon-blue md:block">Post Oficial</h2>
+                  <a href={event.instagram_url} target="_blank" rel="noreferrer" className="btn-ghost w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
+                    Ver no Instagram
                   </a>
-                )}
-                {event.interest_type === 'count' && (
-                  <button className="btn-street neon-purple text-lg px-8 py-4">
-                    Vou Colar ({event.interest_count})
-                  </button>
-                )}
-                {event.interest_type === 'lead' && (
-                  <button className="btn-street neon-red text-lg px-8 py-4">
-                    Entrar na Lista VIP
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
+                </div>
+              )}
+
+              {event.instagram_url && isUpcoming && event.interest_type !== 'none' && (
+                <div className="hidden h-32 w-px bg-concrete md:block" />
+              )}
+
+              {isUpcoming && event.interest_type !== 'none' && (
+                <div className="flex w-full flex-col items-center gap-6 text-center md:w-auto">
+                  <h2 className="hidden font-display text-4xl text-bone md:block">Garanta seu lugar</h2>
+                  {event.interest_type === 'link' && event.ticket_url && (
+                    <a href={event.ticket_url} target="_blank" rel="noreferrer" className="btn-street neon-green w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
+                      Comprar Ingressos
+                    </a>
+                  )}
+                  {event.interest_type === 'count' && (
+                    <button className="btn-street neon-purple w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
+                      Vou Colar ({event.interest_count})
+                    </button>
+                  )}
+                  {event.interest_type === 'lead' && (
+                    <button className="btn-street neon-red w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
+                      Lista VIP
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        </>
       )}
 
       {!isUpcoming && (
