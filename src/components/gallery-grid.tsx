@@ -188,7 +188,6 @@ export function GalleryGrid({ items, eventSlug }: { items: GalleryItem[], eventS
                 src={item.thumbnail_url || item.url}
                 alt={item.caption ?? "Registro da noite no Doca Bar"}
                 fill
-                unoptimized={!item.url.startsWith("/")}
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover opacity-85 grayscale-[35%] transition-all duration-300 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
               />

@@ -138,9 +138,11 @@ export default async function EventPage({ params }: { params: Params }) {
               </h1>
 
               {event.description && (
-                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-bone/75">
-                  {event.description}
-                </p>
+                <div className="mt-6 max-w-2xl space-y-4 text-lg leading-relaxed text-bone/75">
+                  {event.description.split('\n').map((paragraph, i) => (
+                    paragraph.trim() ? <p key={i}>{paragraph}</p> : null
+                  ))}
+                </div>
               )}
             </div>
 
