@@ -86,7 +86,7 @@ export default async function HomePage() {
 
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32">
           <p className="stamp animate-rise mb-6 text-neon-green">
-            ▸ Lapa · Rio de Janeiro · Desde sempre
+            ▸ Lapa · São Paulo · Desde sempre
           </p>
 
           <h1 className="animate-rise font-display text-[clamp(3.6rem,15vw,11rem)] leading-[0.78] tracking-tighter">
