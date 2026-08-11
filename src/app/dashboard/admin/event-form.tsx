@@ -132,8 +132,8 @@ export function EventForm({ initialData }: { initialData?: DocaEvent }) {
         
         <input
           name="ticket_url"
-          type="url"
-          placeholder="URL dos ingressos (se escolheu Link)"
+          type="text"
+          placeholder="URL do ingresso OU Código do Widget (<iframe...)"
           defaultValue={initialData?.ticket_url || ""}
           className="field"
         />

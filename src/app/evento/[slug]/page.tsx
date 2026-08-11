@@ -182,6 +182,21 @@ export default async function EventPage({ params }: { params: Params }) {
         </div>
       </section>
 
+      {/* Widget Shotgun/Sympla */}
+      {isUpcoming && event.interest_type === 'link' && event.ticket_url && event.ticket_url.trim().startsWith('<iframe') && (() => {
+        const match = event.ticket_url.match(/src=["'](.*?)["']/);
+        const widgetUrl = match ? match[1] : null;
+        if (!widgetUrl) return null;
+        
+        return (
+          <section id="ingressos" className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+             <div className="w-full bg-void rounded-xl overflow-hidden border border-concrete">
+               <iframe src={widgetUrl} width="100%" height="800px" style={{ border: 0, maxHeight: 'calc(100vh - 200px)' }} />
+             </div>
+          </section>
+        );
+      })()}
+
       {(event.instagram_url || (isUpcoming && event.interest_type !== 'none')) && (
         <>
           <div className="h-28 md:hidden" aria-hidden="true" />
@@ -204,7 +219,12 @@ export default async function EventPage({ params }: { params: Params }) {
                 <div className="flex w-full flex-col items-center gap-6 text-center md:w-auto">
                   <h2 className="hidden font-display text-4xl text-bone md:block">Garanta seu lugar</h2>
                   {event.interest_type === 'link' && event.ticket_url && (
-                    <a href={event.ticket_url} target="_blank" rel="noreferrer" className="btn-street neon-green w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
+                    <a 
+                      href={event.ticket_url.trim().startsWith('<') ? "#ingressos" : event.ticket_url} 
+                      target={event.ticket_url.trim().startsWith('<') ? "_self" : "_blank"} 
+                      rel="noreferrer" 
+                      className="btn-street neon-green w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
+                    >
                       Comprar Ingressos
                     </a>
                   )}
