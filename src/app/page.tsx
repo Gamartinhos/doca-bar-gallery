@@ -105,9 +105,6 @@ export default async function HomePage() {
             <Link href="#eventos" className="btn-street neon-magenta">
               Ver as noites
             </Link>
-            <Link href="/cardapio" className="btn-ghost neon-blue">
-              Ver Cardápio
-            </Link>
             <Link href="/login" className="btn-ghost neon-green">
               Sou fotógrafo
             </Link>
