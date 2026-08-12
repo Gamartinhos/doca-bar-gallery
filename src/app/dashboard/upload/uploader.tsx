@@ -324,7 +324,7 @@ export function Uploader({
           ref={inputRef}
           type="file"
           multiple
-          accept="image/*,video/*"
+          accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
           className="hidden"
           onChange={(e) => {
             if (e.target.files) addFiles(e.target.files);

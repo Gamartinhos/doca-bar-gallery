@@ -51,3 +51,6 @@ next-env.d.ts
 
 # Google Cloud Service Account
 serene-sentinel-*.json
+
+# Ignore scratch files
+/scratch/
