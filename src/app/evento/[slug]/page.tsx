@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
+import { markInterest } from "./actions";
+import { LeadForm } from "./lead-form";
 import { GalleryGrid, type GalleryItem } from "@/components/gallery-grid";
 import type { DocaEvent, DocaMedia, DocaUser } from "@/lib/database.types";
 import { createClient } from "@/utils/supabase/server";
@@ -49,6 +53,10 @@ export default async function EventPage({ params }: { params: Params }) {
   const { supabase, event } = await loadEvent(slug);
 
   if (!event) notFound();
+
+  const cookieStore = await cookies();
+  const alreadyInterested = cookieStore.has(`interesse_${event.id}`);
+  const alreadyInList = cookieStore.has(`lead_${event.id}`);
 
   const { data: { user } } = await supabase.auth.getUser();
   let userRole = null;
@@ -148,10 +156,14 @@ export default async function EventPage({ params }: { params: Params }) {
 
             {event.cover_image && (
               <div className="relative aspect-[4/5] w-full border border-concrete bg-void p-2">
-                <img
+                <Image
                   src={event.cover_image}
                   alt={event.title}
-                  className="h-full w-full object-cover"
+                  fill
+                  unoptimized={!event.cover_image.startsWith("/")}
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                  priority
+                  className="object-cover"
                 />
               </div>
             )}
@@ -190,8 +202,14 @@ export default async function EventPage({ params }: { params: Params }) {
         
         return (
           <section id="ingressos" className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-             <div className="w-full bg-void rounded-xl overflow-hidden border border-concrete">
-               <iframe src={widgetUrl} width="100%" height="800px" style={{ border: 0, maxHeight: 'calc(100vh - 200px)' }} />
+             <div className="w-full bg-void overflow-hidden border border-concrete">
+               <iframe
+                 src={widgetUrl}
+                 title={`Ingressos — ${event.title}`}
+                 width="100%"
+                 height="800px"
+                 style={{ border: 0, maxHeight: 'calc(100vh - 200px)' }}
+               />
              </div>
           </section>
         );
@@ -229,14 +247,23 @@ export default async function EventPage({ params }: { params: Params }) {
                     </a>
                   )}
                   {event.interest_type === 'count' && (
-                    <button className="btn-street neon-purple w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
-                      Vou Colar ({event.interest_count})
-                    </button>
+                    alreadyInterested ? (
+                      <p className="stamp text-neon-purple">✓ Presença confirmada</p>
+                    ) : (
+                      <form action={markInterest} className="w-full md:w-auto">
+                        <input type="hidden" name="event_id" value={event.id} />
+                        <input type="hidden" name="slug" value={slug} />
+                        <button
+                          type="submit"
+                          className="btn-street neon-purple w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
+                        >
+                          Vou Colar ({event.interest_count})
+                        </button>
+                      </form>
+                    )
                   )}
                   {event.interest_type === 'lead' && (
-                    <button className="btn-street neon-red w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
-                      Lista VIP
-                    </button>
+                    <LeadForm eventId={event.id} slug={slug} alreadyInList={alreadyInList} />
                   )}
                 </div>
               )}

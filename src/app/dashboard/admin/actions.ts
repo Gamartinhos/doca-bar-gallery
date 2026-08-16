@@ -3,11 +3,27 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth";
+import type { EventAccent, InterestType } from "@/lib/database.types";
 import { createClient } from "@/utils/supabase/server";
 
 export interface ActionState {
   error?: string;
   message?: string;
+}
+
+const INTEREST_TYPES: readonly InterestType[] = ["none", "link", "count", "lead"];
+const ACCENTS: readonly EventAccent[] = ["purple", "blue", "red", "green"];
+
+function toInterestType(value: string): InterestType {
+  return (INTEREST_TYPES as readonly string[]).includes(value)
+    ? (value as InterestType)
+    : "none";
+}
+
+function toAccent(value: string): EventAccent {
+  return (ACCENTS as readonly string[]).includes(value)
+    ? (value as EventAccent)
+    : "purple";
 }
 
 function slugify(value: string): string {
@@ -106,17 +122,11 @@ export async function createEvent(
     date,
     description: description || null,
     cover_image: coverImage || null,
-    interest_type: (["none", "link", "count", "lead"] as const).includes(interestType as any)
-      ? (interestType as "none" | "link" | "count" | "lead")
-      : "none",
+    interest_type: toInterestType(interestType),
     interest_count: 0,
     ticket_url: ticketUrl || null,
     instagram_url: instagramUrl || null,
-    accent: (["purple", "blue", "red", "green"] as const).includes(
-      accent as "purple",
-    )
-      ? (accent as "purple" | "blue" | "red" | "green")
-      : "purple",
+    accent: toAccent(accent),
     is_published: true,
     created_by: admin.id,
   });
@@ -133,7 +143,7 @@ export async function updateEvent(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const admin = await requireAdmin();
+  await requireAdmin();
 
   const eventId = String(formData.get("event_id") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
@@ -156,16 +166,10 @@ export async function updateEvent(
     date,
     description: description || null,
     cover_image: coverImage || null,
-    interest_type: (["none", "link", "count", "lead"] as const).includes(interestType as any)
-      ? (interestType as "none" | "link" | "count" | "lead")
-      : "none",
+    interest_type: toInterestType(interestType),
     ticket_url: ticketUrl || null,
     instagram_url: instagramUrl || null,
-    accent: (["purple", "blue", "red", "green"] as const).includes(
-      accent as "purple",
-    )
-      ? (accent as "purple" | "blue" | "red" | "green")
-      : "purple",
+    accent: toAccent(accent),
   }).eq("id", eventId);
 
   if (error) {

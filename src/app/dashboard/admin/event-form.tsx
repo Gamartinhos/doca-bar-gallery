@@ -126,7 +126,7 @@ export function EventForm({ initialData }: { initialData?: DocaEvent }) {
         <select name="interest_type" className="field mb-4" defaultValue={initialData?.interest_type || "none"}>
           <option value="none">Nenhum</option>
           <option value="link">Link de Ingressos</option>
-          <option value="count">Botão "Vou Colar" (Contador)</option>
+          <option value="count">Botão &quot;Vou Colar&quot; (Contador)</option>
           <option value="lead">Lista VIP (Captação de Lead)</option>
         </select>
         

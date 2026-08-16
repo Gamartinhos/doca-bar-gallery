@@ -179,6 +179,10 @@ export interface Database {
         Args: Record<never, never>;
         Returns: boolean;
       };
+      increment_event_interest: {
+        Args: { p_event_id: string };
+        Returns: number;
+      };
     };
     Enums: {
       user_role: UserRole;

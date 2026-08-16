@@ -56,7 +56,7 @@ export function EventCard({
         {/* verniz de neon por cima da capa */}
         <div
           className="absolute inset-0 opacity-45 mix-blend-color transition-opacity duration-500 group-hover:opacity-15"
-          style={{ background: "var(--neon, #b026ff)" }}
+          style={{ background: "var(--neon, var(--color-neon-purple))" }}
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-void via-void/45 to-transparent" />

@@ -11,7 +11,7 @@ interface EventOption {
   date: string;
 }
 
-type Status = "queued" | "sending" | "done" | "error";
+type Status = "queued" | "converting" | "sending" | "done" | "error";
 
 interface QueueItem {
   key: string;
@@ -19,6 +19,19 @@ interface QueueItem {
   preview: string;
   status: Status;
   error?: string;
+}
+
+const HEIC_TYPES = new Set(["image/heic", "image/heif", "image/heic-sequence", "image/heif-sequence"]);
+
+/**
+ * iOS entrega HEIC como image/heic na maioria dos casos, mas navegadores
+ * embutidos (Instagram, WhatsApp) às vezes mandam o type vazio — só a
+ * extensão do arquivo denuncia o formato nesse caso.
+ */
+function isHeicFile(file: File): boolean {
+  if (HEIC_TYPES.has(file.type.toLowerCase())) return true;
+  if (file.type) return false;
+  return /\.hei[cf]$/i.test(file.name);
 }
 
 export function Uploader({
@@ -52,27 +65,6 @@ export function Uploader({
     };
   }, []);
 
-  const addFiles = useCallback((files: FileList | File[]) => {
-    const accepted = Array.from(files).filter(
-      (f) => f.type.startsWith("image/") || f.type.startsWith("video/"),
-    );
-
-    // createObjectURL e Math.random têm efeito colateral: ficam fora do
-    // updater do setState, que o React pode reexecutar.
-    const novos: QueueItem[] = accepted.map((file) => ({
-      key: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
-        .toString(36)
-        .slice(2, 7)}`,
-      file,
-      preview: URL.createObjectURL(file),
-      status: "queued" as Status,
-    }));
-
-    queueRef.current = [...queueRef.current, ...novos];
-    setQueue(queueRef.current);
-    setSummary(null);
-  }, []);
-
   const removeItem = useCallback((key: string) => {
     const alvo = queueRef.current.find((i) => i.key === key);
     if (alvo) URL.revokeObjectURL(alvo.preview);
@@ -97,6 +89,71 @@ export function Uploader({
       current.map((i) => (i.key === key ? { ...i, ...next } : i)),
     );
   }, []);
+
+  /**
+   * iPhone entrega fotos em HEIC, formato que nenhum navegador fora do
+   * Safari sabe exibir ou que o Drive/Storage recusam. Convertemos pra JPG
+   * no próprio aparelho antes de subir — restringir o `accept` do input não
+   * é suficiente porque iOS mostra a galeria inteira independente do MIME
+   * pedido, e apps embutidos (Instagram, WhatsApp) ignoram a dica.
+   */
+  const convertHeicItems = useCallback(
+    async (targets: QueueItem[]) => {
+      if (targets.length === 0) return;
+
+      const { default: heic2any } = await import("heic2any");
+
+      for (const target of targets) {
+        try {
+          const result = await heic2any({
+            blob: target.file,
+            toType: "image/jpeg",
+            quality: 0.85,
+          });
+          const blob = Array.isArray(result) ? result[0] : result;
+          const jpgName = target.file.name.replace(/\.hei[cf]$/i, "") + ".jpg";
+          const jpgFile = new File([blob], jpgName, { type: "image/jpeg" });
+          const jpgPreview = URL.createObjectURL(jpgFile);
+
+          URL.revokeObjectURL(target.preview);
+          patch(target.key, { file: jpgFile, preview: jpgPreview, status: "queued" });
+        } catch {
+          patch(target.key, {
+            status: "error",
+            error: "Não deu pra converter esse HEIC. Exporta como JPG e tenta de novo.",
+          });
+        }
+      }
+    },
+    [patch],
+  );
+
+  const addFiles = useCallback(
+    (files: FileList | File[]) => {
+      const accepted = Array.from(files).filter(
+        (f) => f.type.startsWith("image/") || f.type.startsWith("video/") || isHeicFile(f),
+      );
+
+      // createObjectURL e Math.random têm efeito colateral: ficam fora do
+      // updater do setState, que o React pode reexecutar.
+      const novos: QueueItem[] = accepted.map((file) => ({
+        key: `${file.name}-${file.size}-${file.lastModified}-${Math.random()
+          .toString(36)
+          .slice(2, 7)}`,
+        file,
+        preview: URL.createObjectURL(file),
+        status: isHeicFile(file) ? "converting" : "queued",
+      }));
+
+      queueRef.current = [...queueRef.current, ...novos];
+      setQueue(queueRef.current);
+      setSummary(null);
+
+      const heicItems = novos.filter((item) => item.status === "converting");
+      if (heicItems.length > 0) void convertHeicItems(heicItems);
+    },
+    [convertHeicItems],
+  );
 
   /** Caminho A — cliente direto pro Google Drive via Resumable Upload. */
   async function sendViaDrive(item: QueueItem) {
@@ -183,9 +240,11 @@ export function Uploader({
     if (insertError) throw new Error(insertError.message);
   }
 
+  const converting = queue.some((item) => item.status === "converting");
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!eventId || queue.length === 0 || busy) return;
+    if (!eventId || queue.length === 0 || busy || converting) return;
 
     setBusy(true);
     setSummary(null);
@@ -199,7 +258,7 @@ export function Uploader({
 
     for (const key of chaves) {
       const item = queueRef.current.find((i) => i.key === key);
-      if (!item || item.status === "done") continue;
+      if (!item || item.status === "done" || item.status === "converting") continue;
 
       patch(item.key, { status: "sending", error: undefined });
 
@@ -308,7 +367,10 @@ export function Uploader({
           {dragging ? "SOLTA AÍ" : "ARRASTA OS ARQUIVOS"}
         </p>
         <p className="stamp mt-3">
-          ou clique pra escolher · JPG, PNG, WEBP, MP4, WEBM
+          ou clique pra escolher · JPG, PNG, WEBP, HEIC, MP4, WEBM, MOV
+        </p>
+        <p className="stamp mt-1 text-ash/70">
+          foto de iPhone (HEIC) é convertida pra JPG automaticamente
         </p>
         {driveEnabled ? (
           <p className="stamp mt-1 text-neon-green">
@@ -324,7 +386,12 @@ export function Uploader({
           ref={inputRef}
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+          // image/* e video/* (em vez de uma lista fechada de MIME types)
+          // porque restringir a tipos específicos não impede o Safari de
+          // mostrar HEIC no seletor mesmo assim — e em compensação escondia
+          // .mov (video/quicktime) de câmeras de iPhone. A conversão real
+          // de HEIC acontece em addFiles/convertHeicItems, não aqui.
+          accept="image/*,video/*"
           className="hidden"
           onChange={(e) => {
             if (e.target.files) addFiles(e.target.files);
@@ -355,7 +422,11 @@ export function Uploader({
                 key={item.key}
                 className="scanlines relative aspect-square overflow-hidden border border-concrete bg-ink"
               >
-                {item.file.type.startsWith("video/") ? (
+                {item.status === "converting" ? (
+                  <div className="flex h-full w-full animate-flicker items-center justify-center bg-concrete">
+                    <span className="stamp text-neon-purple">HEIC → JPG</span>
+                  </div>
+                ) : item.file.type.startsWith("video/") ? (
                   <video
                     src={item.preview}
                     muted
@@ -378,7 +449,9 @@ export function Uploader({
                         ? "bg-neon-red text-void"
                         : item.status === "sending"
                           ? "animate-flicker bg-neon-blue text-void"
-                          : "bg-concrete text-bone"
+                          : item.status === "converting"
+                            ? "bg-neon-purple text-void"
+                            : "bg-concrete text-bone"
                   }`}
                 >
                   {item.status === "done"
@@ -387,7 +460,9 @@ export function Uploader({
                       ? "ERRO"
                       : item.status === "sending"
                         ? "SUBINDO"
-                        : "NA FILA"}
+                        : item.status === "converting"
+                          ? "CONVERTENDO"
+                          : "NA FILA"}
                 </span>
 
                 {item.status !== "sending" && (
@@ -421,10 +496,14 @@ export function Uploader({
 
       <button
         type="submit"
-        disabled={busy || queue.length === 0}
+        disabled={busy || converting || queue.length === 0}
         className="btn-street neon-green w-full sm:w-auto"
       >
-        {busy ? "Subindo…" : `Subir ${queue.length || ""} pra galeria`}
+        {busy
+          ? "Subindo…"
+          : converting
+            ? "Convertendo HEIC…"
+            : `Subir ${queue.length || ""} pra galeria`}
       </button>
     </form>
   );
