@@ -286,7 +286,7 @@ export default async function CreatorProfilePage({
               </Link>
               {isOwner && (
                 <Link
-                  href="/pepper/estudio/precos"
+                  href="/dashboard/creator/precos"
                   className="pp-btn-ghost !px-4 !py-2 !text-[0.72rem]"
                 >
                   Ajustar preços

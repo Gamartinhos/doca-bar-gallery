@@ -44,7 +44,7 @@ export default async function PepperAdminOverviewPage() {
         </div>
       </dl>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/dashboard/admin/pepper/creators"
           className="tape concrete flex flex-col justify-between gap-4 border border-concrete p-6 transition-colors hover:border-neon-blue"
@@ -71,6 +71,20 @@ export default async function PepperAdminOverviewPage() {
             </p>
           </div>
           <span className="stamp text-bone">Abrir Orçamentos →</span>
+        </Link>
+
+        <Link
+          href="/dashboard/admin/pepper/services"
+          className="tape concrete flex flex-col justify-between gap-4 border border-concrete p-6 transition-colors hover:border-neon-purple"
+        >
+          <div>
+            <p className="stamp text-neon-purple">Tabela de preços</p>
+            <p className="mt-2 font-display text-3xl text-bone">Serviços</p>
+            <p className="stamp mt-2 text-ash">
+              Preço base, prazo e catálogo do configurador — cada creator pode customizar em cima disso.
+            </p>
+          </div>
+          <span className="stamp text-bone">Abrir Serviços →</span>
         </Link>
       </div>
     </div>

@@ -13,7 +13,7 @@ const EMPTY: PrecosState = {};
 function Submit() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="pp-btn">
+    <button type="submit" disabled={pending} className="btn-street neon-magenta">
       {pending ? "Salvando…" : "Salvar preços"}
     </button>
   );
@@ -29,24 +29,22 @@ export function PrecosForm({
   const [state, action] = useActionState(salvarPrecosCustomizados, EMPTY);
 
   return (
-    <form action={action} className="mt-10">
+    <form action={action} className="mt-6">
       <ul className="space-y-3">
         {services.map((service) => (
           <li
             key={service.id}
-            className="pp-panel flex flex-wrap items-center justify-between gap-4 rounded-2xl p-4"
+            className="flex flex-wrap items-center justify-between gap-4 border border-concrete bg-ink px-4 py-3"
           >
             <div className="min-w-0">
-              <p className="font-[family-name:var(--pp-font-display)] text-base font-black uppercase leading-none tracking-[-0.02em] text-[var(--pp-chalk)]">
-                {service.name}
-              </p>
-              <p className="pp-label mt-2 text-[0.58rem]">
+              <p className="font-display text-xl text-bone">{service.name}</p>
+              <p className="stamp mt-1">
                 Base da Pepper: {brl(service.base_price)} / {service.unit}
               </p>
             </div>
 
             <label className="flex shrink-0 items-center gap-2">
-              <span className="pp-label text-[0.6rem]">R$</span>
+              <span className="stamp">R$</span>
               <input
                 type="number"
                 name={`price_${service.id}`}
@@ -56,26 +54,26 @@ export function PrecosForm({
                 placeholder={service.base_price.toFixed(2)}
                 defaultValue={customPrices[service.id] ?? ""}
                 aria-label={`Preço personalizado para ${service.name}`}
-                className="pp-field !w-32 text-right"
+                className="field !w-32 text-right"
               />
             </label>
           </li>
         ))}
       </ul>
 
-      <p className="mt-4 text-xs leading-relaxed text-[var(--pp-faint)]">
+      <p className="mt-4 text-sm text-ash">
         Deixe em branco pra usar o preço base da Pepper. O que estiver
         preenchido aqui é o que aparece pro cliente no seu link exclusivo de
         orçamento.
       </p>
 
       {state.error && (
-        <p role="alert" className="pp-glass mt-5 rounded-xl px-4 py-3 text-sm text-[var(--pp-pepper-soft)]">
+        <p role="alert" className="mt-4 border border-neon-red bg-neon-red/10 px-3 py-2 font-tech text-sm text-neon-red">
           {state.error}
         </p>
       )}
       {state.message && (
-        <p role="status" className="pp-glass mt-5 rounded-xl px-4 py-3 text-sm text-[var(--pp-chalk)]">
+        <p role="status" className="mt-4 border border-neon-green bg-neon-green/10 px-3 py-2 font-tech text-sm text-neon-green">
           {state.message}
         </p>
       )}

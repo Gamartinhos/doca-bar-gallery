@@ -27,6 +27,9 @@ export default async function PepperAdminLayout({ children }: { children: React.
           <Link href="/dashboard/admin/pepper/quotes" className="btn-ghost neon-green !px-4 !py-2 !text-xs">
             Orçamentos
           </Link>
+          <Link href="/dashboard/admin/pepper/services" className="btn-ghost neon-purple !px-4 !py-2 !text-xs">
+            Serviços
+          </Link>
         </nav>
       </div>
 

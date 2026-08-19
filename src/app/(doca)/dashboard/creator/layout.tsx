@@ -1,6 +1,6 @@
-import Link from "next/link";
-
 import { requireUser } from "@/lib/auth";
+
+import { CreatorTabNav } from "./tab-nav";
 
 export default async function CreatorDashboardLayout({
   children,
@@ -29,14 +29,7 @@ export default async function CreatorDashboardLayout({
             </h1>
           </div>
 
-          <nav className="flex flex-wrap gap-2">
-            <Link href="/pepper/estudio" className="btn-ghost neon-blue !px-4 !py-2 !text-xs">
-              Portfólio
-            </Link>
-            <Link href="/pepper/estudio/precos" className="btn-ghost neon-green !px-4 !py-2 !text-xs">
-              Preços
-            </Link>
-          </nav>
+          <CreatorTabNav />
         </div>
 
         {children}

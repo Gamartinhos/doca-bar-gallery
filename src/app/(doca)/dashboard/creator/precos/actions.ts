@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * Estúdio do creator — preços customizados por serviço.
+ * Painel do creator — preços customizados por serviço.
  *
  * Um envio grava a mesa inteira de uma vez: cada serviço vira uma linha
  * `price_<service_id>` no formulário. Campo em branco significa "sem
@@ -93,7 +93,7 @@ export async function salvarPrecosCustomizados(
     if (error) return { error: "Não deu pra limpar os preços removidos." };
   }
 
-  revalidatePath("/pepper/estudio/precos");
+  revalidatePath("/dashboard/creator/precos");
   revalidatePath(`/pepper/creators/${creator.slug}/orcamento`);
 
   return { message: "Preços atualizados." };
