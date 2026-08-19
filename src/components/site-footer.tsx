@@ -33,6 +33,11 @@ export function SiteFooter() {
                 Enviar mídia
               </Link>
             </li>
+            <li>
+              <Link href="/pepper" className="hover:text-neon-red">
+                Pepper · agência de creators
+              </Link>
+            </li>
           </ul>
         </div>
 

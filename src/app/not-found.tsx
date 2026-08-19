@@ -1,27 +1,23 @@
-import Link from "next/link";
+import { NotFoundContent } from "@/components/not-found-content";
 
+/**
+ * 404 global — URL que não bate com nenhum segmento de nenhuma área.
+ *
+ * Fica **sem** cabeçalho e rodapé de propósito. O Next serializa este
+ * boundary no payload de toda página do app: montar a casca do Doca aqui
+ * faria o `SiteHeader` (que é async e chama `getCurrentUser`) rodar a cada
+ * request de qualquer rota — inclusive das da Pepper, que nem são do Doca.
+ * Um `getUser()` no Supabase por página, só para um 404 que quase nunca
+ * aparece.
+ *
+ * Os 404 que importam — `notFound()` dentro de uma área — caem no boundary
+ * mais próximo (`(doca)/not-found.tsx`, `pepper/not-found.tsx`) e esses sim
+ * já vêm com a casca da marca em volta.
+ */
 export default function NotFound() {
   return (
-    <div className="concrete relative flex min-h-[70vh] flex-col items-center justify-center overflow-hidden px-4 text-center">
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute select-none font-display text-[38vw] leading-none text-neon-red/10"
-      >
-        404
-      </span>
-
-      <h1 className="relative font-display text-6xl leading-none sm:text-8xl">
-        <span className="chromatic block">PORTA</span>
-        <span className="neon neon-red block">FECHADA</span>
-      </h1>
-
-      <p className="relative mt-6 max-w-md text-bone/70">
-        Essa página não existe, foi apagada ou nunca esteve na lista.
-      </p>
-
-      <Link href="/" className="btn-street neon-red relative mt-10">
-        Voltar pra galeria
-      </Link>
+    <div className="doca-shell flex min-h-full flex-1 flex-col">
+      <NotFoundContent />
     </div>
   );
 }

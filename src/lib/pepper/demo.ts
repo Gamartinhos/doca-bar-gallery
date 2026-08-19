@@ -1,0 +1,270 @@
+import type { PepperCreator, PepperMedia, PepperService } from "./types";
+
+/**
+ * Casting e tabela de serviços de demonstração.
+ *
+ * A área Pepper precisa renderizar mesmo antes de a migration 0006 rodar no
+ * Supabase — e mesmo sem nenhum creator cadastrado. Sem isso, `/pepper` cai
+ * numa página vazia (ou num erro de "relation does not exist") e ninguém
+ * consegue avaliar o visual. `src/lib/pepper/data.ts` cai para cá sempre que
+ * o banco não devolve nada, e marca a origem com `source: "demo"` para a UI
+ * poder avisar que o conteúdo ainda é vitrine.
+ *
+ * As capas apontam para arquivos que já existem em `public/` — nenhuma
+ * dependência de host externo (o next.config só libera Supabase e Drive).
+ */
+
+const CAPAS = [
+  "/noites/noite-01.png",
+  "/noites/noite-02.png",
+  "/noites/noite-03.png",
+  "/noites/noite-04.png",
+  "/noites/noite-05.png",
+  "/noites/noite-06.png",
+  "/noites/noite-08.jpeg",
+  "/flyers/rude-rave.jpg",
+  "/flyers/original-prensound.jpg",
+  "/flyers/baile-do-bigode-13-07.jpg",
+  "/flyers/quinta-fever-14-05.jpg",
+  "/flyers/boss-14-06.jpg",
+];
+
+export const DEMO_CREATORS: PepperCreator[] = [
+  {
+    id: "demo-creator-1",
+    user_id: null,
+    slug: "nay-lopes",
+    name: "Nay Lopes",
+    handle: "naylopes",
+    tiktok_handle: "naylopes",
+    bio: "Dancehall e passinho. Cresci no baile e faço conteúdo de dentro da pista, não da mesa VIP.",
+    city: "São Paulo · SP",
+    avatar_url: null,
+    cover_url: CAPAS[0],
+    tags: ["dancehall", "nightlife", "dança"],
+    followers_instagram: 184000,
+    followers_tiktok: 412000,
+    avg_views: 96000,
+    engagement_rate: 7.4,
+    rate_multiplier: 1.35,
+    tier: "headline",
+    is_published: true,
+    sort_order: 1,
+    created_at: "2026-01-12T00:00:00.000Z",
+  },
+  {
+    id: "demo-creator-2",
+    user_id: null,
+    slug: "dj-tuca",
+    name: "DJ Tuca",
+    handle: "djtuca",
+    tiktok_handle: "djtucaoficial",
+    bio: "Trap e baile funk. Toco em cinco casas por semana e filmo todas.",
+    city: "Rio de Janeiro · RJ",
+    avatar_url: null,
+    cover_url: CAPAS[1],
+    tags: ["trap", "música", "nightlife"],
+    followers_instagram: 96000,
+    followers_tiktok: 238000,
+    avg_views: 61000,
+    engagement_rate: 6.1,
+    rate_multiplier: 1.1,
+    tier: "core",
+    is_published: true,
+    sort_order: 2,
+    created_at: "2026-01-18T00:00:00.000Z",
+  },
+  {
+    id: "demo-creator-3",
+    user_id: null,
+    slug: "bibi-marques",
+    name: "Bibi Marques",
+    handle: "bibimarques",
+    tiktok_handle: "bibimarques",
+    bio: "Moda de rua, brechó e look de festa por menos de cem reais.",
+    city: "São Paulo · SP",
+    avatar_url: null,
+    cover_url: CAPAS[2],
+    tags: ["moda", "streetwear", "lifestyle"],
+    followers_instagram: 143000,
+    followers_tiktok: 87000,
+    avg_views: 38000,
+    engagement_rate: 8.2,
+    rate_multiplier: 1.2,
+    tier: "core",
+    is_published: true,
+    sort_order: 3,
+    created_at: "2026-02-02T00:00:00.000Z",
+  },
+  {
+    id: "demo-creator-4",
+    user_id: null,
+    slug: "kadu-preto",
+    name: "Kadu Preto",
+    handle: "kadupreto",
+    tiktok_handle: "kadupreto",
+    bio: "Skate, grafite e madrugada. Documento a cidade que fecha depois das três.",
+    city: "Belo Horizonte · MG",
+    avatar_url: null,
+    cover_url: CAPAS[3],
+    tags: ["skate", "grafite", "urbano"],
+    followers_instagram: 58000,
+    followers_tiktok: 121000,
+    avg_views: 44000,
+    engagement_rate: 9.1,
+    rate_multiplier: 0.95,
+    tier: "rising",
+    is_published: true,
+    sort_order: 4,
+    created_at: "2026-02-14T00:00:00.000Z",
+  },
+  {
+    id: "demo-creator-5",
+    user_id: null,
+    slug: "duda-vieira",
+    name: "Duda Vieira",
+    handle: "dudavieira",
+    tiktok_handle: "dudavieira",
+    bio: "Gastronomia noturna: o que se come às quatro da manhã em cada bairro.",
+    city: "São Paulo · SP",
+    avatar_url: null,
+    cover_url: CAPAS[4],
+    tags: ["gastronomia", "nightlife", "review"],
+    followers_instagram: 211000,
+    followers_tiktok: 165000,
+    avg_views: 72000,
+    engagement_rate: 5.6,
+    rate_multiplier: 1.25,
+    tier: "headline",
+    is_published: true,
+    sort_order: 5,
+    created_at: "2026-02-20T00:00:00.000Z",
+  },
+  {
+    id: "demo-creator-6",
+    user_id: null,
+    slug: "mc-jhow",
+    name: "MC Jhow",
+    handle: "mcjhow",
+    tiktok_handle: "mcjhow",
+    bio: "Faço letra sobre o que acontece na fila da entrada. Cinco singles, zero gravadora.",
+    city: "Guarulhos · SP",
+    avatar_url: null,
+    cover_url: CAPAS[5],
+    tags: ["trap", "música", "humor"],
+    followers_instagram: 39000,
+    followers_tiktok: 94000,
+    avg_views: 51000,
+    engagement_rate: 10.3,
+    rate_multiplier: 0.85,
+    tier: "rising",
+    is_published: true,
+    sort_order: 6,
+    created_at: "2026-03-01T00:00:00.000Z",
+  },
+];
+
+/** Portfólio de exemplo: alterna material solto e material vindo do Doca. */
+export const DEMO_MEDIA: PepperMedia[] = DEMO_CREATORS.flatMap(
+  (creator, creatorIndex) =>
+    Array.from({ length: 6 }, (_, i): PepperMedia => {
+      const asset = CAPAS[(creatorIndex * 2 + i) % CAPAS.length];
+      const fromDoca = i % 3 === 2;
+      return {
+        id: `${creator.id}-media-${i + 1}`,
+        creator_id: creator.id,
+        media_id: null,
+        event_id: null,
+        url: asset,
+        thumbnail_url: asset,
+        type: i % 4 === 1 ? "video" : "photo",
+        origin: fromDoca ? "doca" : "portfolio",
+        caption: fromDoca
+          ? "Registro da noite no Doca Bar"
+          : "Material de portfólio",
+        status: "approved",
+        sort_order: i,
+        created_at: creator.created_at,
+      };
+    }),
+);
+
+export const DEMO_SERVICES: PepperService[] = [
+  {
+    id: "demo-svc-tiktok",
+    slug: "tiktok",
+    name: "Vídeo TikTok",
+    description:
+      "Roteiro, gravação e publicação no perfil do creator. Corte vertical, trilha do momento.",
+    unit: "vídeo",
+    base_price: 1800,
+    lead_days: 7,
+    icon: "▶",
+    sort_order: 1,
+    is_active: true,
+  },
+  {
+    id: "demo-svc-reels",
+    slug: "reels",
+    name: "Reels Instagram",
+    description:
+      "Reels de até 60s com edição da casa, legenda e call-to-action fechado com a marca.",
+    unit: "reels",
+    base_price: 2100,
+    lead_days: 7,
+    icon: "◉",
+    sort_order: 2,
+    is_active: true,
+  },
+  {
+    id: "demo-svc-stories",
+    slug: "stories",
+    name: "Sequência de Stories",
+    description: "Três a cinco stories no mesmo dia, com link e caixinha.",
+    unit: "sequência",
+    base_price: 950,
+    lead_days: 4,
+    icon: "❯",
+    sort_order: 3,
+    is_active: true,
+  },
+  {
+    id: "demo-svc-presenca",
+    slug: "presenca-vip",
+    name: "Presença VIP",
+    description:
+      "O creator vai ao evento, fica no mínimo três horas e entrega cobertura ao vivo.",
+    unit: "noite",
+    base_price: 3400,
+    lead_days: 10,
+    icon: "★",
+    sort_order: 4,
+    is_active: true,
+  },
+  {
+    id: "demo-svc-cobertura",
+    slug: "cobertura",
+    name: "Cobertura de evento",
+    description:
+      "Fotógrafo credenciado do Doca + creator. O material cai na galeria oficial e no portfólio.",
+    unit: "evento",
+    base_price: 4200,
+    lead_days: 14,
+    icon: "◎",
+    sort_order: 5,
+    is_active: true,
+  },
+  {
+    id: "demo-svc-embaixador",
+    slug: "embaixador",
+    name: "Embaixador mensal",
+    description:
+      "Quatro entregas por mês, presença em dois eventos e direito de uso estendido.",
+    unit: "mês",
+    base_price: 9800,
+    lead_days: 21,
+    icon: "◆",
+    sort_order: 6,
+    is_active: true,
+  },
+];

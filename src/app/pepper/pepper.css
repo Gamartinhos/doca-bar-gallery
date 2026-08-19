@@ -1,0 +1,653 @@
+@layer theme, base, components, utilities;
+
+/* =====================================================================
+   PEPPER — agência de influenciadores (dentro do ecossistema Doca)
+   urbana · noturna · quente · streetwear · trap/dancehall
+
+   TUDO neste arquivo está atrás de `.pepper-root`. Nenhum seletor aqui
+   alcança uma página do Doca, mesmo que o CSS acabe carregado junto: o
+   Doca nunca renderiza `.pepper-root`.
+
+   As classes ficam em `@layer components` de propósito. O Tailwind (que é
+   importado no globals.css, carregado antes deste arquivo) declara a ordem
+   `theme, base, components, utilities` — então utilitário na marcação
+   continua ganhando de classe daqui, que é o comportamento esperado.
+   ===================================================================== */
+
+.pepper-root {
+  /* --- superfícies: preto profundo com deriva quente --- */
+  --pp-ink: #08070a;
+  --pp-asphalt: #0e0d12;
+  --pp-graphite: #16151b;
+  --pp-steel: #1f1e26;
+  --pp-smoke: #2c2b35;
+  --pp-fog: #3b3a46;
+
+  /* --- texto --- */
+  --pp-chalk: #f5f2ef;
+  --pp-mute: #a49daa;
+  --pp-faint: #6f6a78;
+
+  /* --- pimenta: o vermelho da casa --- */
+  --pp-pepper: #ff1236;
+  --pp-pepper-soft: #ff4d68;
+  --pp-crimson: #c00d29;
+  --pp-flame: #ff3b1f;
+  --pp-ember: #ff6b35;
+  --pp-amber: #ffb020;
+
+  /* --- vidro --- */
+  --pp-glass-bg: rgba(255, 255, 255, 0.045);
+  --pp-glass-brd: rgba(255, 255, 255, 0.1);
+  --pp-glass-hi: rgba(255, 255, 255, 0.16);
+
+  /* --- tipografia --- */
+  --pp-font-display: var(--font-pp-display), "Archivo", "Helvetica Neue", Arial,
+    sans-serif;
+  --pp-font-body: var(--font-pp-body), "Inter", system-ui, sans-serif;
+  --pp-font-mono: var(--font-pp-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  /* --- movimento (microtransições 150–300ms) --- */
+  --pp-fast: 150ms;
+  --pp-mid: 220ms;
+  --pp-slow: 300ms;
+  --pp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  isolation: isolate;
+  background-color: var(--pp-ink);
+  color: var(--pp-chalk);
+  font-family: var(--pp-font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Brasa acesa no topo e no rodapé — o "calor" da marca, fixo na viewport
+   pra não brigar com o scroll. */
+.pepper-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 62% 42% at 12% -6%,
+      color-mix(in oklab, var(--pp-pepper) 26%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 46% 34% at 94% 8%,
+      color-mix(in oklab, var(--pp-ember) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 90% 46% at 50% 106%,
+      color-mix(in oklab, var(--pp-crimson) 20%, transparent),
+      transparent 72%
+    ),
+    var(--pp-ink);
+}
+
+/* Grão fino de filme noturno. Bem mais discreto que o do Doca — aqui o
+   acabamento é premium, não lambe-lambe. */
+.pepper-root::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------------
+   KEYFRAMES
+   --------------------------------------------------------------------- */
+
+@keyframes pp-ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes pp-heat {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes pp-sheen {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@keyframes pp-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pp-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@layer components {
+  /* =================================================================
+     TIPOGRAFIA
+     ================================================================= */
+
+  .pepper-root h1,
+  .pepper-root h2,
+  .pepper-root h3,
+  .pepper-root h4 {
+    font-family: var(--pp-font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+  }
+
+  .pepper-root ::selection {
+    background: var(--pp-pepper);
+    color: #fff;
+  }
+
+  .pepper-root :focus-visible {
+    outline: 2px solid var(--pp-ember);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Headline gigante e responsiva. */
+  .pp-display {
+    font-family: var(--pp-font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.85;
+    letter-spacing: -0.045em;
+    font-size: clamp(3rem, 11vw, 9.5rem);
+  }
+
+  /* Etiqueta técnica: data, contador, categoria. */
+  .pp-label {
+    font-family: var(--pp-font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--pp-mute);
+  }
+
+  .pp-label-hot {
+    color: var(--pp-ember);
+  }
+
+  /* Texto vazado com contorno — camada de profundidade atrás do título. */
+  .pp-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px
+      color-mix(in oklab, var(--pp-chalk) 42%, transparent);
+    paint-order: stroke fill;
+  }
+
+  /* Gradiente quente aplicado ao texto. */
+  .pp-hot-text {
+    background: linear-gradient(
+      100deg,
+      var(--pp-amber) 0%,
+      var(--pp-ember) 32%,
+      var(--pp-pepper) 68%,
+      var(--pp-crimson) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* =================================================================
+     VIDRO / SUPERFÍCIES
+     ================================================================= */
+
+  .pp-glass {
+    background: var(--pp-glass-bg);
+    border: 1px solid var(--pp-glass-brd);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+  }
+
+  /* Vidro com um fio de luz no topo — dá espessura à borda. */
+  .pp-glass-lit {
+    position: relative;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.07),
+      rgba(255, 255, 255, 0.02)
+    );
+    border: 1px solid var(--pp-glass-brd);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+  }
+  .pp-glass-lit::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--pp-glass-hi) 24%,
+      var(--pp-glass-hi) 76%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  .pp-panel {
+    background: color-mix(in oklab, var(--pp-graphite) 88%, transparent);
+    border: 1px solid var(--pp-steel);
+  }
+
+  /* Malha de asfalto: textura sutil de fundo em blocos largos. */
+  .pp-asphalt {
+    background-color: var(--pp-asphalt);
+    background-image:
+      linear-gradient(
+        color-mix(in oklab, var(--pp-chalk) 3%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--pp-chalk) 3%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 72px 72px;
+  }
+
+  /* =================================================================
+     BOTÕES — microtransição 150–300ms, sem salto de layout
+     ================================================================= */
+
+  .pp-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    overflow: hidden;
+    padding: 0.85rem 1.75rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-family: var(--pp-font-display);
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(
+      100deg,
+      var(--pp-flame),
+      var(--pp-pepper) 55%,
+      var(--pp-crimson)
+    );
+    box-shadow:
+      0 0 0 0 color-mix(in oklab, var(--pp-pepper) 60%, transparent),
+      0 10px 30px -12px color-mix(in oklab, var(--pp-pepper) 85%, transparent);
+    transition:
+      transform var(--pp-fast) var(--pp-ease),
+      box-shadow var(--pp-mid) var(--pp-ease),
+      filter var(--pp-fast) var(--pp-ease);
+    cursor: pointer;
+  }
+  .pp-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 42%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.34),
+      transparent
+    );
+    transform: translateX(-120%) skewX(-18deg);
+    pointer-events: none;
+  }
+  .pp-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow:
+      0 0 0 4px color-mix(in oklab, var(--pp-pepper) 18%, transparent),
+      0 18px 40px -14px color-mix(in oklab, var(--pp-pepper) 95%, transparent);
+  }
+  .pp-btn:hover::after {
+    animation: pp-sheen 620ms var(--pp-ease);
+  }
+  .pp-btn:active {
+    transform: translateY(0) scale(0.985);
+    transition-duration: 90ms;
+  }
+  .pp-btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.5);
+    box-shadow: none;
+  }
+
+  .pp-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.85rem 1.6rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--pp-chalk) 22%, transparent);
+    background: var(--pp-glass-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-family: var(--pp-font-display);
+    font-weight: 700;
+    font-size: 0.88rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--pp-chalk);
+    transition:
+      border-color var(--pp-mid) var(--pp-ease),
+      color var(--pp-mid) var(--pp-ease),
+      background-color var(--pp-mid) var(--pp-ease),
+      transform var(--pp-fast) var(--pp-ease);
+    cursor: pointer;
+  }
+  .pp-btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: var(--pp-pepper);
+    color: var(--pp-pepper-soft);
+    background: color-mix(in oklab, var(--pp-pepper) 10%, transparent);
+  }
+  .pp-btn-ghost:active {
+    transform: translateY(0) scale(0.985);
+  }
+  .pp-btn-ghost:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* =================================================================
+     CHIPS / TAGS
+     ================================================================= */
+
+  .pp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--pp-glass-brd);
+    background: var(--pp-glass-bg);
+    font-family: var(--pp-font-mono);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--pp-mute);
+    white-space: nowrap;
+    transition:
+      border-color var(--pp-fast) var(--pp-ease),
+      color var(--pp-fast) var(--pp-ease),
+      background-color var(--pp-fast) var(--pp-ease);
+  }
+
+  .pp-chip-hot {
+    border-color: color-mix(in oklab, var(--pp-pepper) 55%, transparent);
+    background: color-mix(in oklab, var(--pp-pepper) 14%, transparent);
+    color: var(--pp-pepper-soft);
+  }
+
+  /* Chip clicável (filtros, seleção de serviço). */
+  .pp-chip-btn {
+    cursor: pointer;
+  }
+  .pp-chip-btn:hover {
+    border-color: color-mix(in oklab, var(--pp-pepper) 60%, transparent);
+    color: var(--pp-chalk);
+  }
+  .pp-chip-btn[aria-pressed="true"] {
+    border-color: var(--pp-pepper);
+    background: color-mix(in oklab, var(--pp-pepper) 20%, transparent);
+    color: #fff;
+  }
+
+  /* =================================================================
+     CARDS
+     ================================================================= */
+
+  .pp-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid var(--pp-steel);
+    background: var(--pp-graphite);
+    transition:
+      transform var(--pp-slow) var(--pp-ease),
+      border-color var(--pp-slow) var(--pp-ease),
+      box-shadow var(--pp-slow) var(--pp-ease);
+  }
+  .pp-card:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in oklab, var(--pp-pepper) 62%, transparent);
+    box-shadow: 0 26px 60px -26px
+      color-mix(in oklab, var(--pp-pepper) 85%, transparent);
+  }
+
+  /* Borda que acende no hover, sem mexer no layout (usa máscara). */
+  .pp-card-lit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      140deg,
+      var(--pp-amber),
+      var(--pp-pepper) 45%,
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--pp-slow) var(--pp-ease);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .pp-card-lit:hover::before {
+    opacity: 1;
+  }
+
+  /* =================================================================
+     FORMULÁRIO
+     ================================================================= */
+
+  .pp-field {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--pp-fog);
+    background: color-mix(in oklab, var(--pp-ink) 72%, transparent);
+    color: var(--pp-chalk);
+    font-family: var(--pp-font-body);
+    font-size: 0.98rem;
+    transition:
+      border-color var(--pp-mid) var(--pp-ease),
+      box-shadow var(--pp-mid) var(--pp-ease),
+      background-color var(--pp-mid) var(--pp-ease);
+  }
+  .pp-field::placeholder {
+    color: var(--pp-faint);
+  }
+  .pp-field:focus {
+    outline: none;
+    border-color: var(--pp-pepper);
+    background: color-mix(in oklab, var(--pp-ink) 55%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--pp-pepper) 22%, transparent);
+  }
+  .pp-field:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Slider de quantidade do configurador. */
+  .pp-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--pp-steel);
+    cursor: pointer;
+  }
+  .pp-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--pp-ink);
+    background: var(--pp-pepper);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--pp-pepper) 45%, transparent);
+    transition: box-shadow var(--pp-fast) var(--pp-ease);
+  }
+  .pp-range::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--pp-pepper) 30%, transparent);
+  }
+  .pp-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--pp-ink);
+    background: var(--pp-pepper);
+  }
+
+  /* =================================================================
+     MOVIMENTO / DECORAÇÃO
+     ================================================================= */
+
+  .pp-ticker {
+    display: flex;
+    width: max-content;
+    animation: pp-ticker 34s linear infinite;
+  }
+  .pp-ticker-slow {
+    animation-duration: 58s;
+  }
+  .pp-ticker-rev {
+    animation-direction: reverse;
+  }
+
+  /* Bola de calor difusa — usada solta no fundo das seções. */
+  .pp-heat {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none;
+    animation: pp-heat 7s ease-in-out infinite;
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--pp-pepper) 55%, transparent),
+      transparent 70%
+    );
+  }
+
+  .pp-live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pp-pepper);
+    box-shadow: 0 0 10px var(--pp-pepper);
+    animation: pp-blink 1.6s ease-in-out infinite;
+  }
+
+  .pp-drift {
+    animation: pp-drift 6s ease-in-out infinite;
+  }
+
+  /* Máscara de fade nas laterais (tickers e faixas roláveis). */
+  .pp-fade-x {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+
+  /* Barra de rolagem discreta e quente. */
+  .pepper-root ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  .pepper-root ::-webkit-scrollbar-track {
+    background: var(--pp-asphalt);
+  }
+  .pepper-root ::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: linear-gradient(var(--pp-ember), var(--pp-crimson));
+  }
+}
+
+/* Quem pediu menos movimento recebe menos movimento. O globals.css já zera
+   transições globalmente; aqui derrubamos também os loops infinitos. */
+@media (prefers-reduced-motion: reduce) {
+  .pepper-root::before,
+  .pepper-root::after,
+  .pp-ticker,
+  .pp-heat,
+  .pp-drift,
+  .pp-live-dot {
+    animation: none !important;
+  }
+}

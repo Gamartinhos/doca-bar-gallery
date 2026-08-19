@@ -89,16 +89,33 @@ export async function createEvent(
   const title = String(formData.get("title") ?? "").trim();
   const date = String(formData.get("date") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  const coverImage = String(formData.get("cover_image") ?? "").trim();
+  let coverImage = String(formData.get("cover_image") ?? "").trim();
   const accent = String(formData.get("accent") ?? "purple");
   const interestType = String(formData.get("interest_type") ?? "none");
   const ticketUrl = String(formData.get("ticket_url") ?? "").trim();
   const instagramUrl = String(formData.get("instagram_url") ?? "").trim();
+  const coverImageFile = formData.get("cover_image_file") as File | null;
 
   if (!title) return { error: "O evento precisa de um nome." };
   if (!date) return { error: "Escolha a data da noite." };
 
   const supabase = await createClient();
+
+  if (coverImageFile && coverImageFile.size > 0) {
+    const ext = coverImageFile.name.split(".").pop() ?? "bin";
+    const path = `flyers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, coverImageFile, {
+        cacheControl: "31536000",
+        contentType: coverImageFile.type,
+      });
+
+    if (uploadError) return { error: `Erro ao subir flyer: ${uploadError.message}` };
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
+    coverImage = data.publicUrl;
+  }
 
   // Garante slug único acrescentando sufixo quando necessário.
   const base = slugify(title) || "evento";
@@ -149,17 +166,34 @@ export async function updateEvent(
   const title = String(formData.get("title") ?? "").trim();
   const date = String(formData.get("date") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  const coverImage = String(formData.get("cover_image") ?? "").trim();
+  let coverImage = String(formData.get("cover_image") ?? "").trim();
   const accent = String(formData.get("accent") ?? "purple");
   const interestType = String(formData.get("interest_type") ?? "none");
   const ticketUrl = String(formData.get("ticket_url") ?? "").trim();
   const instagramUrl = String(formData.get("instagram_url") ?? "").trim();
+  const coverImageFile = formData.get("cover_image_file") as File | null;
 
   if (!eventId) return { error: "ID do evento não encontrado." };
   if (!title) return { error: "O evento precisa de um nome." };
   if (!date) return { error: "Escolha a data da noite." };
 
   const supabase = await createClient();
+
+  if (coverImageFile && coverImageFile.size > 0) {
+    const ext = coverImageFile.name.split(".").pop() ?? "bin";
+    const path = `flyers/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, coverImageFile, {
+        cacheControl: "31536000",
+        contentType: coverImageFile.type,
+      });
+
+    if (uploadError) return { error: `Erro ao subir flyer: ${uploadError.message}` };
+    const { data } = supabase.storage.from("media").getPublicUrl(path);
+    coverImage = data.publicUrl;
+  }
 
   const { error } = await supabase.from("events").update({
     title,

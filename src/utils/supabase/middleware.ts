@@ -3,8 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import type { Database } from "@/lib/database.types";
 
-/** Rotas que exigem sessão autenticada. */
-const PROTECTED_PREFIXES = ["/dashboard"];
+/**
+ * Rotas que exigem sessão autenticada.
+ *
+ * `/pepper/estudio` entra aqui — e não só no `requireUser` da página —
+ * porque aquela rota tem `loading.tsx`: o shell é enviado antes de o
+ * servidor descobrir que não há sessão, e o visitante vê o esqueleto
+ * piscar antes de ser jogado no login. Barrando no proxy o redirect vira
+ * um 307 limpo, antes de qualquer render.
+ */
+const PROTECTED_PREFIXES = ["/dashboard", "/pepper/estudio"];
 
 /**
  * Renova o token de sessão a cada request e protege as rotas de dashboard.

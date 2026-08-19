@@ -161,14 +161,69 @@ dezenas de MB ao bundle serverless.
 src/
 ├── proxy.ts                    renova a sessão e protege /dashboard
 ├── app/
-│   ├── page.tsx                galeria pública
-│   ├── evento/[slug]/          página da noite
-│   ├── login/                  entrar / pedir credencial
-│   ├── dashboard/
-│   │   ├── admin/              aprovar fotógrafos, abrir eventos
-│   │   └── upload/             enviar mídia
+│   ├── layout.tsx              só o casco: <html>, <body>, fontes, globals.css
+│   ├── (doca)/                 route group da casa — não aparece na URL
+│   │   ├── layout.tsx          cabeçalho + rodapé do Doca
+│   │   ├── page.tsx            galeria pública  → /
+│   │   ├── evento/[slug]/      página da noite
+│   │   ├── login/              entrar / pedir credencial
+│   │   └── dashboard/
+│   │       ├── admin/          aprovar fotógrafos, abrir eventos
+│   │       └── upload/         enviar mídia
+│   ├── pepper/                 agência de creators (outra marca, mesmo banco)
+│   │   ├── layout.tsx          casca da Pepper: fontes e `.pepper-root`
+│   │   ├── pepper.css          design system da Pepper (escopado)
+│   │   ├── page.tsx            home  → /pepper
+│   │   ├── creators/[id]/      portfólio do creator
+│   │   ├── estudio/            upload do creator (solto ou vinculado ao Doca)
+│   │   └── orcamento/          configurador público de orçamento
 │   └── api/upload/             rota do Google Drive
-├── components/                 header, footer, cards, grid + lightbox
-├── lib/                        auth, tipos do banco, Google Drive
+├── components/
+│   ├── pepper/                 UI da Pepper (nada compartilhado com o Doca)
+│   └── ...                     header, footer, cards, grid + lightbox do Doca
+├── lib/
+│   ├── pepper/                 tipos, leitura com fallback, motor de preço
+│   └── ...                     auth, tipos do banco, Google Drive
 └── utils/supabase/             clients SSR (browser, server, proxy)
 ```
+
+### Duas marcas, um app
+
+O `src/app/layout.tsx` da raiz é só `<html>`/`<body>`/fontes. Cada marca traz a
+própria casca:
+
+| Rota      | Casca                    | Identidade                                  |
+| --------- | ------------------------ | ------------------------------------------- |
+| `/`       | `app/(doca)/layout.tsx`  | neon roxo/magenta, Anton + Barlow, lambe-lambe |
+| `/pepper` | `app/pepper/layout.tsx`  | vermelho pimenta, Archivo + Inter, vidro     |
+
+O route group `(doca)` não aparece na URL — `/` continua sendo `/`. Todo o CSS da
+Pepper vive em `src/app/pepper/pepper.css`, atrás de `.pepper-root`, e é servido
+num chunk separado: quem abre só o Doca não baixa nada da Pepper e vice-versa.
+
+---
+
+## Pepper — agência de influenciadores
+
+Sub-marca dentro do mesmo app e do **mesmo banco**: mesmo `auth.users`, mesmos
+eventos, mesma tabela `media`.
+
+- `/pepper` — home, casting em destaque, serviços e como funciona
+- `/pepper/creators` — casting completo com filtro por tag, faixa e ordenação
+- `/pepper/creators/[id]` — portfólio do creator (aceita slug ou uuid)
+- `/pepper/estudio` — o creator sobe material **solto** (só portfólio) ou
+  **vinculado a um evento do Doca** — nesse caso a peça entra em `public.media` e
+  aparece também na galeria oficial da casa
+- `/pepper/orcamento` — configurador público: serviços × casting × prazo × direitos
+  de uso, com estimativa ao vivo e envio de solicitação
+
+Tabelas: `pepper_creators`, `pepper_media`, `pepper_services`, `pepper_quotes`
+(migration `0006_pepper.sql`, com RLS no mesmo padrão do Doca).
+
+**Enquanto a migration 0006 não roda**, `/pepper` cai num casting de vitrine
+(`src/lib/pepper/demo.ts`) e mostra um aviso — em vez de quebrar. Assim que as
+tabelas existirem e houver creator publicado, os dados reais assumem sozinhos.
+
+O preço vive em `src/lib/pepper/pricing.ts`, função pura usada nos dois lados: o
+cliente mostra a estimativa ao vivo e o servidor **recalcula** antes de gravar, pra
+que o valor no banco nunca venha do formulário.

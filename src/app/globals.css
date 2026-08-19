@@ -129,6 +129,14 @@
     font-size: 1.0625rem;
     letter-spacing: 0.01em;
     overflow-x: hidden;
+  }
+
+  /*
+    A mancha de neon do Doca mora na casca `(doca)/layout.tsx`, não no body.
+    Se ficasse no body, `/pepper` — que é outra marca dentro do mesmo app —
+    herdaria o roxo do Doca por baixo do próprio fundo.
+  */
+  .doca-shell {
     /* mancha de neon roxo/vermelho vazando do teto */
     background-image:
       radial-gradient(

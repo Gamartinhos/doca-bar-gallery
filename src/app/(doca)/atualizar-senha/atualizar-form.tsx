@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { recoverPassword, type AuthState } from "@/app/login/actions";
+import { updatePassword, type AuthState } from "@/app/(doca)/login/actions";
 
 const EMPTY: AuthState = {};
 
@@ -13,30 +12,31 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="btn-street neon-magenta w-full"
+      className="btn-street neon-green w-full"
     >
-      {pending ? "Aguarde…" : "Enviar link de recuperação"}
+      {pending ? "Salvando…" : "Salvar nova senha"}
     </button>
   );
 }
 
-export function RecuperarForm() {
-  const [state, action] = useActionState(recoverPassword, EMPTY);
+export function AtualizarForm() {
+  const [state, action] = useActionState(updatePassword, EMPTY);
 
   return (
     <div className="w-full max-w-md">
       <form action={action} className="space-y-4">
         <div>
-          <label htmlFor="email" className="stamp mb-2 block">
-            E-mail da sua conta
+          <label htmlFor="password" className="stamp mb-2 block">
+            Nova Senha
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
+            id="password"
+            name="password"
+            type="password"
             required
-            autoComplete="email"
-            placeholder="voce@email.com"
+            minLength={6}
+            autoComplete="new-password"
+            placeholder="••••••••"
             className="field"
           />
         </div>
@@ -61,13 +61,6 @@ export function RecuperarForm() {
 
         <SubmitButton />
       </form>
-
-      <Link
-        href="/login"
-        className="mt-6 inline-block font-tech text-xs uppercase tracking-[0.2em] text-ash transition-colors hover:text-neon-blue"
-      >
-        ← Voltar pro login
-      </Link>
     </div>
   );
 }

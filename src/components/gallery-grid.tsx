@@ -34,7 +34,7 @@ const SPANS = [
 
 const TILTS = ["-rotate-1", "rotate-1", "rotate-0", "-rotate-2", "rotate-2"];
 
-import { deleteMediaAction } from "@/app/evento/[slug]/actions";
+import { deleteMediaAction } from "@/app/(doca)/evento/[slug]/actions";
 
 export function GalleryGrid({ items, eventSlug }: { items: GalleryItem[], eventSlug?: string }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);

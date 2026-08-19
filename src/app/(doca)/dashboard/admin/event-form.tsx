@@ -83,28 +83,36 @@ export function EventForm({ initialData }: { initialData?: DocaEvent }) {
         </fieldset>
       </div>
 
-      <div>
-        <div className="mb-2 flex items-baseline justify-between">
-          <label htmlFor="cover_image" className="stamp">
-            URL da capa / flyer
+      <div className="space-y-4 rounded-none border border-concrete p-4">
+        <div>
+          <label htmlFor="cover_image_file" className="stamp mb-2 block">
+            Capa / Flyer do Evento (Upload direto)
           </label>
-          <a 
-            href="https://postimages.org/" 
-            target="_blank" 
-            rel="noreferrer"
-            className="font-tech text-xs text-neon-blue hover:underline"
-          >
-            Subir imagem grátis ↗
-          </a>
+          <input
+            id="cover_image_file"
+            name="cover_image_file"
+            type="file"
+            accept="image/*"
+            className="field cursor-pointer file:mr-4 file:cursor-pointer file:border-none file:bg-concrete file:px-4 file:py-2 file:font-tech file:text-sm file:text-bone hover:file:bg-neon-magenta hover:file:text-void"
+          />
+          <p className="stamp mt-2 text-ash">
+            O flyer vai para a nossa nuvem super rápida. Tamanho máx: 4.5MB.
+          </p>
         </div>
-        <input
-          id="cover_image"
-          name="cover_image"
-          type="url"
-          placeholder="https://…"
-          defaultValue={initialData?.cover_image || ""}
-          className="field"
-        />
+        
+        <div className="border-t border-concrete pt-4">
+          <label htmlFor="cover_image" className="stamp mb-2 block">
+            OU mantenha/cole a URL de um link externo (fallback)
+          </label>
+          <input
+            id="cover_image"
+            name="cover_image"
+            type="url"
+            placeholder="https://…"
+            defaultValue={initialData?.cover_image || ""}
+            className="field"
+          />
+        </div>
       </div>
 
       <div>

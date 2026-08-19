@@ -2,8 +2,8 @@
 
 import { ErrorScreen } from "@/components/error-screen";
 
-/** Boundary da raiz: pega o que escapar dos boundaries de cada área. */
-export default function RootError(props: {
+/** Boundary das rotas do Doca — renderiza dentro da casca da casa. */
+export default function DocaError(props: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {

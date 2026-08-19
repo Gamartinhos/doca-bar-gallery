@@ -6,9 +6,6 @@ import {
   Permanent_Marker,
 } from "next/font/google";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
-
 import "./globals.css";
 
 const anton = Anton({
@@ -73,6 +70,14 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
+/**
+ * Root layout — só o casco: <html>, <body>, fontes e o CSS global.
+ *
+ * O cabeçalho e o rodapé do Doca vivem em `(doca)/layout.tsx`, não aqui.
+ * Isso é o que permite `/pepper` ter uma casca completamente diferente
+ * (outra marca, outra paleta, outra tipografia) sem hack de CSS e sem
+ * duplicar <html>/<body>.
+ */
 export default function RootLayout({
   children,
 }: {
@@ -87,11 +92,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${anton.variable} ${marker.variable} ${condensed.variable} ${tech.variable} h-full antialiased`}
     >
-      <body className="grain flex min-h-full flex-col">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-      </body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

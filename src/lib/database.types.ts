@@ -6,6 +6,13 @@
  * cliente tipado degrada tudo para `never`.
  */
 
+import type {
+  PepperCreator,
+  PepperMedia,
+  PepperQuote,
+  PepperService,
+} from "@/lib/pepper/types";
+
 export type UserRole = "admin" | "photographer";
 export type MediaType = "photo" | "video";
 export type MediaStatus = "pending" | "approved" | "rejected";
@@ -167,6 +174,63 @@ export interface Database {
             referencedColumns: ["id"];
           },
         ];
+      };
+      pepper_creators: {
+        Row: PepperCreator;
+        Insert: Omit<PepperCreator, "id" | "created_at"> &
+          Partial<Pick<PepperCreator, "id" | "created_at">>;
+        Update: Partial<PepperCreator>;
+        Relationships: [
+          {
+            foreignKeyName: "pepper_creators_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      pepper_media: {
+        Row: PepperMedia;
+        Insert: Omit<PepperMedia, "id" | "created_at"> &
+          Partial<Pick<PepperMedia, "id" | "created_at">>;
+        Update: Partial<PepperMedia>;
+        Relationships: [
+          {
+            foreignKeyName: "pepper_media_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "pepper_creators";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pepper_media_media_id_fkey";
+            columns: ["media_id"];
+            isOneToOne: false;
+            referencedRelation: "media";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pepper_media_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      pepper_services: {
+        Row: PepperService;
+        Insert: Omit<PepperService, "id"> & Partial<Pick<PepperService, "id">>;
+        Update: Partial<PepperService>;
+        Relationships: [];
+      };
+      pepper_quotes: {
+        Row: PepperQuote;
+        Insert: Omit<PepperQuote, "id" | "created_at" | "status"> &
+          Partial<Pick<PepperQuote, "id" | "created_at" | "status">>;
+        Update: Partial<PepperQuote>;
+        Relationships: [];
       };
     };
     Views: Record<never, never>;
