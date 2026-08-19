@@ -245,3 +245,44 @@ export async function deleteCreator(formData: FormData): Promise<void> {
   revalidatePath("/dashboard/admin/pepper/creators");
   revalidatePath("/pepper/creators");
 }
+
+/**
+ * Sobe/desce um creator na ordem de exibição.
+ *
+ * Troca só o `sort_order` dos dois vizinhos não funciona: a maioria nasce
+ * com `sort_order = 0` (empate, desempatado por nome na listagem), então
+ * trocar um par de zeros não move nada. Em vez disso a posição inteira é
+ * recalculada a partir da ordem atual e regravada como 0, 1, 2…
+ */
+export async function moveCreator(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const creatorId = String(formData.get("creator_id") ?? "");
+  const direction = String(formData.get("direction") ?? "");
+  if (!creatorId || (direction !== "up" && direction !== "down")) return;
+
+  const supabase = await createClient();
+  const { data: rows } = await supabase
+    .from("pepper_creators")
+    .select("id")
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  const ids = (rows ?? []).map((r) => r.id as string);
+  const index = ids.indexOf(creatorId);
+  if (index === -1) return;
+
+  const swapWith = direction === "up" ? index - 1 : index + 1;
+  if (swapWith < 0 || swapWith >= ids.length) return;
+
+  [ids[index], ids[swapWith]] = [ids[swapWith], ids[index]];
+
+  await Promise.all(
+    ids.map((rowId, position) =>
+      supabase.from("pepper_creators").update({ sort_order: position }).eq("id", rowId),
+    ),
+  );
+
+  revalidatePath("/dashboard/admin/pepper/creators");
+  revalidatePath("/pepper/creators");
+}

@@ -8,6 +8,7 @@
 
 import type {
   PepperCreator,
+  PepperCreatorService,
   PepperMedia,
   PepperQuote,
   PepperService,
@@ -231,6 +232,28 @@ export interface Database {
           Partial<Pick<PepperQuote, "id" | "created_at" | "status">>;
         Update: Partial<PepperQuote>;
         Relationships: [];
+      };
+      pepper_creator_services: {
+        Row: PepperCreatorService;
+        Insert: Omit<PepperCreatorService, "is_active"> &
+          Partial<Pick<PepperCreatorService, "is_active">>;
+        Update: Partial<PepperCreatorService>;
+        Relationships: [
+          {
+            foreignKeyName: "pepper_creator_services_creator_id_fkey";
+            columns: ["creator_id"];
+            isOneToOne: false;
+            referencedRelation: "pepper_creators";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pepper_creator_services_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "pepper_services";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: Record<never, never>;

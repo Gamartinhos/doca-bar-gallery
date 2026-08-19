@@ -277,12 +277,22 @@ export default async function CreatorProfilePage({
                 ? "Esta ficha é sua — o portfólio se atualiza pelo estúdio."
                 : "Acesso de admin: você pode editar o portfólio deste creator."}
             </p>
-            <Link
-              href="/pepper/estudio"
-              className="pp-btn-ghost !px-4 !py-2 !text-[0.72rem]"
-            >
-              Gerenciar portfólio
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/pepper/estudio"
+                className="pp-btn-ghost !px-4 !py-2 !text-[0.72rem]"
+              >
+                Gerenciar portfólio
+              </Link>
+              {isOwner && (
+                <Link
+                  href="/pepper/estudio/precos"
+                  className="pp-btn-ghost !px-4 !py-2 !text-[0.72rem]"
+                >
+                  Ajustar preços
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -372,15 +382,16 @@ export default async function CreatorProfilePage({
                 )}
 
                 <Link
-                  href={`/pepper/orcamento?creator=${creator.slug}`}
+                  href={`/pepper/creators/${creator.slug}/orcamento`}
                   className="pp-btn mt-7 w-full"
                 >
                   Montar orçamento
                 </Link>
 
                 <p className="mt-3.5 text-[0.72rem] leading-relaxed text-[var(--pp-faint)]">
-                  Valores já com o peso de casting de {primeiroNome}. Prazo,
-                  direitos de uso e exclusividade fecham no configurador.
+                  Configurador exclusivo, já travado em {primeiroNome} e com
+                  os preços que a pessoa fechou. Prazo, direitos de uso e
+                  exclusividade fecham na hora.
                 </p>
               </div>
             </aside>

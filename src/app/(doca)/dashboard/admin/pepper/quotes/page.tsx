@@ -25,22 +25,67 @@ const STATUS_BG: Record<PepperQuoteStatus, string> = {
   lost: "bg-neon-red",
 };
 
-export default async function PepperQuotesPage() {
+const STATUS_FILTERS: { value: PepperQuoteStatus | "all"; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "new", label: "Novos" },
+  { value: "contacted", label: "Contatados" },
+  { value: "won", label: "Ganhos" },
+  { value: "lost", label: "Perdidos" },
+];
+
+const PAGE_SIZE = 20;
+
+function toStatusFilter(value: string | undefined): PepperQuoteStatus | "all" {
+  const valid: readonly string[] = ["new", "contacted", "won", "lost"];
+  return value && valid.includes(value) ? (value as PepperQuoteStatus) : "all";
+}
+
+function buildUrl(status: PepperQuoteStatus | "all", page: number): string {
+  const params = new URLSearchParams();
+  if (status !== "all") params.set("status", status);
+  if (page > 1) params.set("page", String(page));
+  const qs = params.toString();
+  return `/dashboard/admin/pepper/quotes${qs ? `?${qs}` : ""}`;
+}
+
+export default async function PepperQuotesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; page?: string }>;
+}) {
   await requireAdmin();
   const supabase = await createClient();
 
-  const { data } = await supabase
+  const { status: statusParam, page: pageParam } = await searchParams;
+  const status = toStatusFilter(statusParam);
+  const page = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const offset = (page - 1) * PAGE_SIZE;
+
+  let listQuery = supabase
     .from("pepper_quotes")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + PAGE_SIZE - 1);
+  if (status !== "all") listQuery = listQuery.eq("status", status);
+
+  const [{ data, count }, { count: countNew }, { count: countContacted }, { count: countWon }, { count: countLost }] =
+    await Promise.all([
+      listQuery,
+      supabase.from("pepper_quotes").select("*", { count: "exact", head: true }).eq("status", "new"),
+      supabase.from("pepper_quotes").select("*", { count: "exact", head: true }).eq("status", "contacted"),
+      supabase.from("pepper_quotes").select("*", { count: "exact", head: true }).eq("status", "won"),
+      supabase.from("pepper_quotes").select("*", { count: "exact", head: true }).eq("status", "lost"),
+    ]);
 
   const quotes = (data ?? []) as PepperQuote[];
+  const total = count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const counts = {
-    new: quotes.filter((q) => q.status === "new").length,
-    contacted: quotes.filter((q) => q.status === "contacted").length,
-    won: quotes.filter((q) => q.status === "won").length,
-    lost: quotes.filter((q) => q.status === "lost").length,
+    new: countNew ?? 0,
+    contacted: countContacted ?? 0,
+    won: countWon ?? 0,
+    lost: countLost ?? 0,
   };
 
   return (
@@ -69,8 +114,22 @@ export default async function PepperQuotesPage() {
         </div>
       </dl>
 
+      <nav className="mt-6 flex flex-wrap gap-2" aria-label="Filtrar por status">
+        {STATUS_FILTERS.map((f) => (
+          <Link
+            key={f.value}
+            href={buildUrl(f.value, 1)}
+            className={`btn-ghost !px-3 !py-1.5 !text-xs ${
+              status === f.value ? "border-neon-green text-neon-green" : ""
+            }`}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </nav>
+
       {quotes.length === 0 ? (
-        <p className="stamp py-6">Nenhum orçamento recebido ainda.</p>
+        <p className="stamp py-6">Nenhum orçamento encontrado com esse filtro.</p>
       ) : (
         <ul className="mt-6 space-y-3">
           {quotes.map((q) => (
@@ -118,6 +177,30 @@ export default async function PepperQuotesPage() {
             </li>
           ))}
         </ul>
+      )}
+
+      {totalPages > 1 && (
+        <nav className="mt-8 flex items-center justify-between gap-4 border-t border-concrete pt-6" aria-label="Paginação">
+          {page > 1 ? (
+            <Link href={buildUrl(status, page - 1)} className="btn-ghost !px-4 !py-2 !text-xs">
+              ← Anterior
+            </Link>
+          ) : (
+            <span className="btn-ghost !px-4 !py-2 !text-xs opacity-30">← Anterior</span>
+          )}
+
+          <p className="stamp">
+            Página {page} de {totalPages} · {total} orçamento{total === 1 ? "" : "s"}
+          </p>
+
+          {page < totalPages ? (
+            <Link href={buildUrl(status, page + 1)} className="btn-ghost !px-4 !py-2 !text-xs">
+              Próxima →
+            </Link>
+          ) : (
+            <span className="btn-ghost !px-4 !py-2 !text-xs opacity-30">Próxima →</span>
+          )}
+        </nav>
       )}
     </div>
   );

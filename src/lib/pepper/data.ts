@@ -127,6 +127,35 @@ export async function getMyCreatorProfile(
   }
 }
 
+/**
+ * Preços que o creator personalizou, indexados por `service_id`.
+ *
+ * Usado tanto pelo estúdio (pra prencher o formulário com o que já foi
+ * salvo) quanto pela calculadora exclusiva do creator (pra sobrepor o
+ * `base_price` da tabela pública). Linha ausente ou `is_active = false`
+ * significa "sem customização" — quem decide isso é o chamador.
+ */
+export async function getCreatorCustomPrices(
+  creatorId: string,
+): Promise<Record<string, number>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("pepper_creator_services")
+      .select("service_id, custom_price")
+      .eq("creator_id", creatorId)
+      .eq("is_active", true);
+
+    if (error) throw error;
+
+    const prices: Record<string, number> = {};
+    for (const row of data ?? []) prices[row.service_id] = Number(row.custom_price);
+    return prices;
+  } catch {
+    return {};
+  }
+}
+
 /** Eventos do Doca que o creator pode vincular a uma peça do portfólio. */
 export async function getDocaEventOptions(): Promise<
   { id: string; title: string; date: string }[]

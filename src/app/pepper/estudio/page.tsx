@@ -146,6 +146,12 @@ export default async function PepperEstudioPage() {
                 >
                   ver meu perfil público
                 </Link>
+                <Link
+                  href="/pepper/estudio/precos"
+                  className="pp-label underline decoration-[var(--pp-fog)] underline-offset-4 transition-colors duration-150 hover:text-[var(--pp-pepper-soft)]"
+                >
+                  ajustar meus preços
+                </Link>
               </div>
             </div>
           </div>

@@ -231,18 +231,24 @@ function LiveSummary({ breakdown }: { breakdown: PepperQuoteBreakdown }) {
 /* ------------------------------------------------------------------ */
 
 export function QuoteConfigurator({
-  services,
+  services: rawServices,
   creators,
   preselectedCreatorId = null,
+  lockedCreator = null,
+  customPricesOverride,
 }: {
   services: PepperService[];
   creators: PepperCreator[];
   preselectedCreatorId?: string | null;
+  /** Trava o casting num único creator — usado no link exclusivo de orçamento dele. */
+  lockedCreator?: PepperCreator | null;
+  /** slug do serviço → preço customizado, sobrepõe `base_price` na tela e no cálculo. */
+  customPricesOverride?: Record<string, number>;
 }) {
   const [step, setStep] = useState(0);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [creatorIds, setCreatorIds] = useState<string[]>(
-    preselectedCreatorId ? [preselectedCreatorId] : [],
+    lockedCreator ? [lockedCreator.id] : preselectedCreatorId ? [preselectedCreatorId] : [],
   );
   const [urgency, setUrgency] = useState<PepperUrgency>("padrao");
   const [usage, setUsage] = useState<PepperUsage>("organico");
@@ -267,6 +273,15 @@ export function QuoteConfigurator({
   const reduce = useReducedMotion();
   const stepsRef = useRef<HTMLDivElement>(null);
   const firstRenderRef = useRef(true);
+
+  const services = useMemo(() => {
+    if (!customPricesOverride) return rawServices;
+    return rawServices.map((service) =>
+      customPricesOverride[service.slug] != null
+        ? { ...service, base_price: customPricesOverride[service.slug] }
+        : service,
+    );
+  }, [rawServices, customPricesOverride]);
 
   const payload: PepperQuotePayload = useMemo(
     () => ({ services: quantities, creatorIds, urgency, usage, exclusivity }),
@@ -320,6 +335,7 @@ export function QuoteConfigurator({
   }
 
   function toggleCreator(id: string) {
+    if (lockedCreator) return;
     setCreatorIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
@@ -377,7 +393,7 @@ export function QuoteConfigurator({
     setSent(null);
     setStep(0);
     setQuantities({});
-    setCreatorIds(preselectedCreatorId ? [preselectedCreatorId] : []);
+    setCreatorIds(lockedCreator ? [lockedCreator.id] : preselectedCreatorId ? [preselectedCreatorId] : []);
     setUrgency("padrao");
     setUsage("organico");
     setExclusivity(false);
@@ -633,7 +649,38 @@ export function QuoteConfigurator({
         )}
 
         {/* ---------------- Passo 02 · Casting ---------------- */}
-        {step === 1 && (
+        {step === 1 && lockedCreator && (
+          <section aria-labelledby="pp-passo-casting">
+            <h2 id="pp-passo-casting" className="text-[clamp(1.75rem,4vw,2.5rem)]">
+              Orçamento <span className="pp-hot-text">exclusivo</span>
+            </h2>
+            <p className="mt-3 text-[var(--pp-mute)]">
+              Este link já vem fechado com {lockedCreator.name.split(" ")[0]} —
+              os preços abaixo são os que a pessoa combinou pra cada serviço.
+            </p>
+
+            <div className="pp-panel mt-6 flex items-center gap-3.5 rounded-2xl border-[var(--pp-pepper)] bg-[color-mix(in_oklab,var(--pp-pepper)_9%,transparent)] p-4">
+              <CreatorAvatar
+                name={lockedCreator.name}
+                slug={lockedCreator.slug}
+                src={lockedCreator.avatar_url}
+                size={48}
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-[family-name:var(--pp-font-display)] text-base font-black uppercase leading-none tracking-[-0.03em] text-[var(--pp-chalk)]">
+                  {lockedCreator.name}
+                </span>
+                <span className="pp-label mt-1.5 block truncate text-[0.56rem]">
+                  {TIER_LABEL[lockedCreator.tier]}
+                  {lockedCreator.city ? ` · ${lockedCreator.city}` : ""}
+                </span>
+              </span>
+              <span className="pp-chip pp-chip-hot shrink-0">travado</span>
+            </div>
+          </section>
+        )}
+
+        {step === 1 && !lockedCreator && (
           <section aria-labelledby="pp-passo-casting">
             <h2
               id="pp-passo-casting"

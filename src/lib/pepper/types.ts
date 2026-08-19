@@ -84,6 +84,14 @@ export type PepperService = {
   is_active: boolean;
 };
 
+/** Preço que o próprio creator define para um serviço — sobrepõe o `base_price`. */
+export type PepperCreatorService = {
+  creator_id: string;
+  service_id: string;
+  custom_price: number;
+  is_active: boolean;
+};
+
 export type PepperQuoteStatus = "new" | "contacted" | "won" | "lost";
 
 export type PepperQuote = {

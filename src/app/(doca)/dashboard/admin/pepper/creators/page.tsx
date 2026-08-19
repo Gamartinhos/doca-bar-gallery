@@ -7,7 +7,7 @@ import { compactNumber, initials } from "@/lib/pepper/format";
 import type { PepperCreator, PepperTier } from "@/lib/pepper/types";
 import { createClient } from "@/utils/supabase/server";
 
-import { deleteCreator, toggleCreatorPublished } from "./actions";
+import { deleteCreator, moveCreator, toggleCreatorPublished } from "./actions";
 import { CreatorForm, type UserOption } from "./creator-form";
 
 export const metadata: Metadata = { title: "Pepper · Casting" };
@@ -87,12 +87,38 @@ export default async function PepperCreatorsPage({
           <p className="stamp py-6">Nenhum creator cadastrado ainda.</p>
         ) : (
           <ul className="space-y-3">
-            {creators.map((c) => (
+            {creators.map((c, index) => (
               <li
                 key={c.id}
                 className="flex flex-wrap items-center justify-between gap-4 border border-concrete bg-ink px-4 py-3"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex shrink-0 flex-col gap-1">
+                    <form action={moveCreator}>
+                      <input type="hidden" name="creator_id" value={c.id} />
+                      <input type="hidden" name="direction" value="up" />
+                      <button
+                        type="submit"
+                        disabled={index === 0}
+                        aria-label={`Subir ${c.name}`}
+                        className="btn-ghost !px-2 !py-1 !text-xs disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                    </form>
+                    <form action={moveCreator}>
+                      <input type="hidden" name="creator_id" value={c.id} />
+                      <input type="hidden" name="direction" value="down" />
+                      <button
+                        type="submit"
+                        disabled={index === creators.length - 1}
+                        aria-label={`Descer ${c.name}`}
+                        className="btn-ghost !px-2 !py-1 !text-xs disabled:cursor-not-allowed disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                    </form>
+                  </div>
                   <CreatorThumb creator={c} />
                   <div className="min-w-0">
                     <p className="flex flex-wrap items-center gap-2 font-display text-2xl text-bone">
