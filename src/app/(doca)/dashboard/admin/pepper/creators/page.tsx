@@ -7,7 +7,7 @@ import { compactNumber, initials } from "@/lib/pepper/format";
 import type { PepperCreator, PepperTier } from "@/lib/pepper/types";
 import { createClient } from "@/utils/supabase/server";
 
-import { deleteCreator, moveCreator, toggleCreatorPublished } from "./actions";
+import { approveCreator, deleteCreator, moveCreator, toggleCreatorPublished } from "./actions";
 import { CreatorForm, type UserOption } from "./creator-form";
 
 export const metadata: Metadata = { title: "Pepper · Casting" };
@@ -55,17 +55,29 @@ export default async function PepperCreatorsPage({
 
   const { edit: editId } = await searchParams;
 
-  const [{ data: creatorsData }, { data: usersData }] = await Promise.all([
+  const [{ data: creatorsData }, { data: usersData }, { data: pendingData }] = await Promise.all([
     supabase
       .from("pepper_creators")
       .select("*")
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true }),
     supabase.from("users").select("id, full_name, email").order("full_name", { ascending: true }),
+    supabase
+      .from("users")
+      .select("id, full_name, email, created_at")
+      .eq("role", "creator")
+      .eq("is_approved", false)
+      .order("created_at", { ascending: true }),
   ]);
 
   const creators = (creatorsData ?? []) as PepperCreator[];
   const usersRaw = (usersData ?? []) as { id: string; full_name: string | null; email: string | null }[];
+  const pendingUsers = (pendingData ?? []) as {
+    id: string;
+    full_name: string | null;
+    email: string | null;
+    created_at: string;
+  }[];
 
   const userLabel = new Map(usersRaw.map((u) => [u.id, u.full_name || u.email || u.id]));
   const users: UserOption[] = usersRaw.map((u) => ({
@@ -73,12 +85,68 @@ export default async function PepperCreatorsPage({
     label: u.full_name && u.email ? `${u.full_name} (${u.email})` : u.full_name || u.email || u.id,
   }));
 
+  const creatorByUserId = new Map(
+    creators.filter((c) => c.user_id).map((c) => [c.user_id as string, c]),
+  );
+
   const editCreator = editId ? creators.find((c) => c.id === editId) : undefined;
 
   return (
     <div className="grid gap-14 lg:grid-cols-[1fr_400px]">
       {/* ============ COLUNA ESQUERDA — LISTAGEM ============ */}
       <div>
+        <section className="mb-14">
+          <h2 className="mb-5 border-b border-concrete pb-3 font-display text-4xl">
+            <span className="text-bone">APROVAÇÕES</span> <span className="neon neon-red">PENDENTES</span>
+          </h2>
+
+          {pendingUsers.length === 0 ? (
+            <p className="stamp py-6">Ninguém esperando aprovação.</p>
+          ) : (
+            <ul className="space-y-3">
+              {pendingUsers.map((u) => {
+                const pendingCreator = creatorByUserId.get(u.id);
+                return (
+                  <li
+                    key={u.id}
+                    className="flex flex-wrap items-center justify-between gap-4 border border-concrete bg-ink px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-display text-2xl text-bone">
+                        {u.full_name ?? "Sem nome"}
+                        {pendingCreator?.handle && (
+                          <span className="stamp ml-2 text-ash">@{pendingCreator.handle}</span>
+                        )}
+                      </p>
+                      <p className="stamp truncate">
+                        {u.email} · cadastrado em {new Date(u.created_at).toLocaleDateString("pt-BR")}
+                        {!pendingCreator && " · sem ficha de creator ainda"}
+                      </p>
+                    </div>
+
+                    {pendingCreator ? (
+                      <form action={approveCreator}>
+                        <input type="hidden" name="user_id" value={u.id} />
+                        <input type="hidden" name="creator_id" value={pendingCreator.id} />
+                        <button type="submit" className="btn-street neon-green !px-4 !py-2 !text-sm">
+                          Aprovar Creator
+                        </button>
+                      </form>
+                    ) : (
+                      <form action={approveCreator}>
+                        <input type="hidden" name="user_id" value={u.id} />
+                        <button type="submit" className="btn-ghost neon-purple !px-4 !py-2 !text-sm">
+                          Liberar login (sem ficha)
+                        </button>
+                      </form>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
         <h2 className="mb-5 border-b border-concrete pb-3 font-display text-4xl">
           <span className="text-bone">O</span> <span className="neon neon-blue">CASTING</span>
         </h2>

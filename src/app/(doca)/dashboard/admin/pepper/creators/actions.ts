@@ -247,6 +247,32 @@ export async function deleteCreator(formData: FormData): Promise<void> {
 }
 
 /**
+ * Aprova um creator recém-cadastrado: libera o login (`users.is_approved`)
+ * e publica a ficha (`pepper_creators.is_published`) num só clique — as
+ * duas coisas juntas é o que faz o perfil aparecer de verdade pro público,
+ * diferente da fila de aprovação genérica do admin, que só mexe em `users`.
+ */
+export async function approveCreator(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const userId = String(formData.get("user_id") ?? "");
+  const creatorId = String(formData.get("creator_id") ?? "");
+  if (!userId) return;
+
+  const supabase = await createClient();
+  await Promise.all([
+    supabase.from("users").update({ is_approved: true }).eq("id", userId),
+    creatorId
+      ? supabase.from("pepper_creators").update({ is_published: true }).eq("id", creatorId)
+      : Promise.resolve(),
+  ]);
+
+  revalidatePath("/dashboard/admin/pepper/creators");
+  revalidatePath("/dashboard/admin");
+  revalidatePath("/pepper/creators");
+}
+
+/**
  * Sobe/desce um creator na ordem de exibição.
  *
  * Troca só o `sort_order` dos dois vizinhos não funciona: a maioria nasce

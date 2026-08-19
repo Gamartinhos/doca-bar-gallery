@@ -14,7 +14,7 @@ import type {
   PepperService,
 } from "@/lib/pepper/types";
 
-export type UserRole = "admin" | "photographer";
+export type UserRole = "admin" | "photographer" | "creator";
 export type MediaType = "photo" | "video";
 export type MediaStatus = "pending" | "approved" | "rejected";
 export type EventAccent = "purple" | "blue" | "red" | "green";
