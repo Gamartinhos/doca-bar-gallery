@@ -48,14 +48,11 @@ export function PepperNav({ studioHref }: { studioHref: string }) {
             className="group flex items-center gap-2.5"
             aria-label="Pepper — início"
           >
-            <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-[var(--pp-flame)] to-[var(--pp-crimson)] shadow-[0_6px_18px_-6px_var(--pp-pepper)] transition-transform duration-200 group-hover:scale-105">
-              <span className="font-[family-name:var(--pp-font-display)] text-lg font-black leading-none text-white">
-                P
-              </span>
-            </span>
-            <span className="font-[family-name:var(--pp-font-display)] text-2xl font-black uppercase leading-none tracking-[-0.04em]">
-              Pepper
-            </span>
+            <img 
+              src="/logo-pepper.png" 
+              alt="Pepper" 
+              className="h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105" 
+            />
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
