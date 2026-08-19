@@ -73,6 +73,17 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </div>
       </dl>
 
+      <Link
+        href="/dashboard/admin/pepper"
+        className="tape concrete mt-10 flex flex-wrap items-center justify-between gap-4 border border-concrete p-5 transition-colors hover:border-neon-magenta"
+      >
+        <div>
+          <p className="stamp text-neon-magenta">Agência</p>
+          <p className="font-display text-3xl text-bone">PEPPER — Casting &amp; Orçamentos</p>
+        </div>
+        <span className="stamp text-ash">Gerenciar →</span>
+      </Link>
+
       <div className="mt-14 grid gap-14 lg:grid-cols-[1fr_380px]">
         {/* ============ COLUNA ESQUERDA ============ */}
         <div className="space-y-14">
