@@ -9,8 +9,13 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-concrete bg-void/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
-        <Link href="/" className="group flex items-center gap-2">
-          <img src="/logo-doca.jpg" alt="DOCA bar" className="h-10 w-auto object-contain transition-opacity group-hover:opacity-80" />
+        <Link href="/" className="group flex items-baseline gap-2">
+          <span className="font-display text-3xl leading-none tracking-tight text-bone transition-colors group-hover:text-neon-magenta sm:text-4xl">
+            DOCA
+          </span>
+          <span className="neon neon-magenta font-tag text-lg leading-none sm:text-xl">
+            bar
+          </span>
         </Link>
 
         <nav className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1 sm:gap-x-3">
