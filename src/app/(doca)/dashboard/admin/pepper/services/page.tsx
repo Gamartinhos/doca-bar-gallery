@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { brl } from "@/lib/pepper/format";
 import type { PepperService } from "@/lib/pepper/types";
 import { createClient } from "@/utils/supabase/server";
@@ -17,7 +17,7 @@ export default async function PepperServicesPage({
 }: {
   searchParams: Promise<{ edit?: string }>;
 }) {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/services");
   const supabase = await createClient();
 
   const { edit: editId } = await searchParams;

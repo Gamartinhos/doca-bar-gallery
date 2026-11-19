@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { PepperTier } from "@/lib/pepper/types";
 import { createClient } from "@/utils/supabase/server";
 
@@ -123,7 +123,7 @@ export async function createCreator(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
 
   const f = readFields(formData);
   const avatarFile = formData.get("avatar_url_file") as File | null;
@@ -172,7 +172,7 @@ export async function updateCreator(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
 
   const creatorId = String(formData.get("creator_id") ?? "").trim();
   const f = readFields(formData);
@@ -220,7 +220,7 @@ export async function updateCreator(
 }
 
 export async function toggleCreatorPublished(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
 
   const creatorId = String(formData.get("creator_id") ?? "");
   const publish = String(formData.get("publish") ?? "") === "true";
@@ -234,7 +234,7 @@ export async function toggleCreatorPublished(formData: FormData): Promise<void> 
 }
 
 export async function deleteCreator(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
 
   const creatorId = String(formData.get("creator_id") ?? "");
   if (!creatorId) return;
@@ -253,7 +253,7 @@ export async function deleteCreator(formData: FormData): Promise<void> {
  * diferente da fila de aprovação genérica do admin, que só mexe em `users`.
  */
 export async function approveCreator(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
 
   const userId = String(formData.get("user_id") ?? "");
   const creatorId = String(formData.get("creator_id") ?? "");
@@ -269,6 +269,7 @@ export async function approveCreator(formData: FormData): Promise<void> {
 
   revalidatePath("/dashboard/admin/pepper/creators");
   revalidatePath("/dashboard/admin");
+  revalidatePath("/dashboard");
   revalidatePath("/pepper/creators");
 }
 
@@ -281,7 +282,7 @@ export async function approveCreator(formData: FormData): Promise<void> {
  * recalculada a partir da ordem atual e regravada como 0, 1, 2…
  */
 export async function moveCreator(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
 
   const creatorId = String(formData.get("creator_id") ?? "");
   const direction = String(formData.get("direction") ?? "");

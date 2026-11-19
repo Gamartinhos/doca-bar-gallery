@@ -7,22 +7,25 @@
 
 @theme {
   /* --- superfícies (o breu) --- */
-  --color-void: #050309;
-  --color-ink: #0a0611;
-  --color-smoke: #140e1e;
-  --color-concrete: #1d1628;
+  --color-void: #050507;
+  --color-ink: #0b0a0e;
+  --color-smoke: #141118;
+  --color-concrete: #241e29;
   --color-bone: #ece6da;
-  --color-ash: #8a7f96;
+  --color-ash: #9a92a6;
 
-  /* --- neon (a luz da casa) --- */
-  /* #b026ff dava 4.32:1 no preto — reprovava no AA para texto pequeno.
-     Este tom mantém o roxo de neon e passa de 5:1. */
-  --color-neon-purple: #bd51ff;
-  --color-neon-magenta: #ff2fd0;
-  --color-neon-blue: #1fe0ff;
-  --color-neon-red: #ff1f43;
-  --color-neon-green: #39ff5a;
-  --color-acid: #d8ff00;
+  /* --- Raul Underground (contracultura + ostentação VIP) --- */
+  --color-neon-orange: #ff4d00;
+  --color-neon-gold: #d4af37;
+  --color-gold-bright: #f5d061;
+  --color-neon-red: #ff2a3d;
+
+  /* --- compatibilidade retroativa com paleta legada --- */
+  --color-neon-purple: #ff4d00;
+  --color-neon-magenta: #ff4d00;
+  --color-neon-blue: #d4af37;
+  --color-neon-green: #f5d061;
+  --color-acid: #ff4d00;
 
   /* --- tipografia --- */
   --font-display: var(--font-anton), "Impact", sans-serif;
@@ -137,21 +140,21 @@
     herdaria o roxo do Doca por baixo do próprio fundo.
   */
   .doca-shell {
-    /* mancha de neon roxo/vermelho vazando do teto */
+    /* mancha Raul Underground: laranja fogo + ouro VIP + vermelho */
     background-image:
       radial-gradient(
         ellipse 70% 50% at 15% -10%,
-        color-mix(in oklab, var(--color-neon-purple) 30%, transparent),
+        color-mix(in oklab, var(--color-neon-orange) 22%, transparent),
         transparent 70%
       ),
       radial-gradient(
         ellipse 60% 45% at 92% 4%,
-        color-mix(in oklab, var(--color-neon-red) 20%, transparent),
+        color-mix(in oklab, var(--color-neon-gold) 16%, transparent),
         transparent 72%
       ),
       radial-gradient(
         ellipse 90% 60% at 50% 108%,
-        color-mix(in oklab, var(--color-neon-blue) 14%, transparent),
+        color-mix(in oklab, var(--color-neon-red) 12%, transparent),
         transparent 70%
       );
     background-attachment: fixed;
@@ -168,11 +171,11 @@
   }
 
   ::selection {
-    background: var(--color-neon-magenta);
+    background: var(--color-neon-orange);
     color: var(--color-void);
   }
 
-  /* barra de rolagem estilo fita de neon */
+  /* barra de rolagem estilo Raul Underground */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -182,14 +185,14 @@
   }
   ::-webkit-scrollbar-thumb {
     background: linear-gradient(
-      var(--color-neon-purple),
-      var(--color-neon-magenta)
+      var(--color-neon-orange),
+      var(--color-neon-gold)
     );
     border: 2px solid var(--color-void);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-acid);
+    outline: 2px solid var(--color-neon-gold);
     outline-offset: 3px;
   }
 
@@ -250,19 +253,19 @@
       ),
       repeating-linear-gradient(
         -20deg,
-        rgba(176, 38, 255, 0.05) 0px,
-        rgba(176, 38, 255, 0.05) 2px,
+        rgba(255, 77, 0, 0.05) 0px,
+        rgba(255, 77, 0, 0.05) 2px,
         transparent 2px,
         transparent 22px
       ),
       radial-gradient(
         circle at 22% 30%,
-        rgba(255, 47, 208, 0.09),
+        rgba(255, 77, 0, 0.06),
         transparent 45%
       ),
       radial-gradient(
         circle at 78% 72%,
-        rgba(31, 224, 255, 0.07),
+        rgba(212, 175, 55, 0.06),
         transparent 45%
       );
   }
@@ -287,51 +290,81 @@
   }
 
   /* =================================================================
-     NEON
+     NEON & OSTENTAÇÃO RAUL UNDERGROUND
      ================================================================= */
 
   .neon {
-    color: var(--neon, var(--color-neon-magenta));
+    color: var(--neon, var(--color-neon-orange));
     text-shadow:
-      0 0 4px color-mix(in oklab, var(--neon, var(--color-neon-magenta)) 90%, white),
-      0 0 12px var(--neon, var(--color-neon-magenta)),
-      0 0 38px var(--neon, var(--color-neon-magenta)),
-      0 0 80px color-mix(in oklab, var(--neon, var(--color-neon-magenta)) 60%, transparent);
+      0 0 4px color-mix(in oklab, var(--neon, var(--color-neon-orange)) 90%, white),
+      0 0 12px var(--neon, var(--color-neon-orange)),
+      0 0 38px var(--neon, var(--color-neon-orange)),
+      0 0 80px color-mix(in oklab, var(--neon, var(--color-neon-orange)) 60%, transparent);
   }
 
+  .neon-orange {
+    --neon: var(--color-neon-orange);
+  }
+  .neon-gold {
+    --neon: var(--color-neon-gold);
+  }
   .neon-purple {
-    --neon: var(--color-neon-purple);
+    --neon: var(--color-neon-orange);
   }
   .neon-magenta {
-    --neon: var(--color-neon-magenta);
+    --neon: var(--color-neon-orange);
   }
   .neon-blue {
-    --neon: var(--color-neon-blue);
+    --neon: var(--color-neon-gold);
   }
   .neon-red {
     --neon: var(--color-neon-red);
   }
   .neon-green {
-    --neon: var(--color-neon-green);
+    --neon: var(--color-gold-bright);
+  }
+
+  .gold-vip {
+    background: linear-gradient(
+      135deg,
+      #fff3c4 0%,
+      #f5d061 35%,
+      #d4af37 70%,
+      #9a7418 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.35));
+  }
+
+  .glass-vip {
+    background: rgba(12, 10, 14, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    box-shadow:
+      0 20px 50px -20px rgba(0, 0, 0, 0.85),
+      inset 0 1px 0 0 rgba(245, 208, 97, 0.2);
   }
 
   /* moldura de tubo de neon */
   .neon-frame {
-    border: 1px solid var(--neon, var(--color-neon-purple));
+    border: 1px solid var(--neon, var(--color-neon-orange));
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--neon, var(--color-neon-purple)) 40%, transparent),
-      0 0 14px color-mix(in oklab, var(--neon, var(--color-neon-purple)) 55%, transparent),
-      inset 0 0 22px color-mix(in oklab, var(--neon, var(--color-neon-purple)) 20%, transparent);
+      0 0 0 1px color-mix(in oklab, var(--neon, var(--color-neon-orange)) 40%, transparent),
+      0 0 14px color-mix(in oklab, var(--neon, var(--color-neon-orange)) 55%, transparent),
+      inset 0 0 22px color-mix(in oklab, var(--neon, var(--color-neon-orange)) 20%, transparent);
   }
 
-  /* título com aberração cromática (impressão desalinhada) */
+  /* título com aberração cromática (impressão desalinhada Laranja + Ouro) */
   .chromatic {
     position: relative;
     color: var(--color-bone);
     text-shadow:
-      2px 0 0 color-mix(in oklab, var(--color-neon-red) 85%, transparent),
-      -2px 0 0 color-mix(in oklab, var(--color-neon-blue) 85%, transparent),
-      0 0 26px rgba(176, 38, 255, 0.45);
+      2px 0 0 color-mix(in oklab, var(--color-neon-orange) 85%, transparent),
+      -2px 0 0 color-mix(in oklab, var(--color-neon-gold) 75%, transparent),
+      0 0 26px rgba(255, 77, 0, 0.38);
   }
 
   /* contorno vazado, estilo lambe-lambe */
@@ -372,12 +405,12 @@
     transform: rotate(-28deg);
   }
 
-  /* faixa de alerta diagonal (fita de obra) */
+  /* faixa de alerta diagonal (fita de obra Laranja + Preto) */
   .hazard {
     background-image: repeating-linear-gradient(
       45deg,
-      var(--color-acid) 0px,
-      var(--color-acid) 14px,
+      var(--color-neon-orange) 0px,
+      var(--color-neon-orange) 14px,
       var(--color-void) 14px,
       var(--color-void) 28px
     );
@@ -404,28 +437,64 @@
     color: var(--color-void);
     background: var(--color-bone);
     border: 1px solid var(--color-void);
-    box-shadow: 5px 5px 0 0 var(--neon, var(--color-neon-magenta));
+    box-shadow: 5px 5px 0 0 var(--neon, var(--color-neon-orange));
     transition:
-      transform 0.12s ease,
-      box-shadow 0.12s ease,
-      background-color 0.12s ease;
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
     cursor: pointer;
   }
   .btn-street:hover {
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 0 var(--neon, var(--color-neon-magenta));
-    background: var(--neon, var(--color-neon-magenta));
+    box-shadow: 2px 2px 0 0 var(--neon, var(--color-neon-orange));
+    background: var(--neon, var(--color-neon-orange));
     color: var(--color-void);
   }
   .btn-street:active {
     transform: translate(5px, 5px);
-    box-shadow: 0 0 0 0 var(--neon, var(--color-neon-magenta));
+    box-shadow: 0 0 0 0 var(--neon, var(--color-neon-orange));
   }
   .btn-street:disabled {
     opacity: 0.45;
     cursor: not-allowed;
     transform: none;
     box-shadow: 5px 5px 0 0 var(--color-concrete);
+  }
+
+  /* botão VIP ostentação dourado */
+  .btn-gold {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.9rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #050507;
+    background: linear-gradient(135deg, #f5d061 0%, #d4af37 55%, #b38728 100%);
+    border: 1px solid rgba(255, 243, 196, 0.45);
+    box-shadow:
+      5px 5px 0 0 #ff4d00,
+      0 12px 30px -10px rgba(212, 175, 55, 0.45);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      filter 0.2s ease;
+    cursor: pointer;
+  }
+  .btn-gold:hover {
+    transform: translate(2px, 2px);
+    box-shadow:
+      2px 2px 0 0 #ff4d00,
+      0 14px 34px -8px rgba(245, 208, 97, 0.6);
+    filter: brightness(1.06);
+  }
+  .btn-gold:active {
+    transform: translate(5px, 5px);
+    box-shadow: 0 0 0 0 #ff4d00;
   }
 
   /* botão fantasma, contorno neon */
@@ -442,16 +511,16 @@
     border: 1px solid color-mix(in oklab, var(--color-bone) 35%, transparent);
     background: color-mix(in oklab, var(--color-void) 60%, transparent);
     transition:
-      border-color 0.15s ease,
-      color 0.15s ease,
-      box-shadow 0.15s ease;
+      border-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
     cursor: pointer;
   }
   .btn-ghost:hover {
-    border-color: var(--neon, var(--color-neon-blue));
-    color: var(--neon, var(--color-neon-blue));
+    border-color: var(--neon, var(--color-neon-gold));
+    color: var(--neon, var(--color-neon-gold));
     box-shadow: 0 0 18px
-      color-mix(in oklab, var(--neon, var(--color-neon-blue)) 45%, transparent);
+      color-mix(in oklab, var(--neon, var(--color-neon-gold)) 45%, transparent);
   }
 
   /* campo de formulário */
@@ -475,9 +544,9 @@
   }
   .field:focus {
     outline: none;
-    border-color: var(--color-neon-magenta);
-    box-shadow: 0 0 0 1px var(--color-neon-magenta),
-      0 0 20px rgba(255, 47, 208, 0.28);
+    border-color: var(--color-neon-orange);
+    box-shadow: 0 0 0 1px var(--color-neon-orange),
+      0 0 20px rgba(255, 77, 0, 0.28);
   }
 
   /* etiqueta técnica (data, hora, contadores) */
@@ -502,9 +571,9 @@
   }
   .card-slab:hover {
     transform: translateY(-4px);
-    border-color: var(--neon, var(--color-neon-purple));
+    border-color: var(--neon, var(--color-neon-orange));
     box-shadow: 0 18px 50px -18px
-      color-mix(in oklab, var(--neon, var(--color-neon-purple)) 70%, transparent);
+      color-mix(in oklab, var(--neon, var(--color-neon-orange)) 70%, transparent);
   }
 }
 

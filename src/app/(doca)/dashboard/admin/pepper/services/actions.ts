@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
 
 export interface ActionState {
@@ -55,7 +55,7 @@ export async function createService(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/services");
 
   const name = String(formData.get("name") ?? "").trim();
   const slugInput = String(formData.get("slug") ?? "").trim();
@@ -104,7 +104,7 @@ export async function updateService(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/services");
 
   const serviceId = String(formData.get("service_id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -145,7 +145,7 @@ export async function updateService(
 }
 
 export async function toggleServiceActive(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/services");
 
   const serviceId = String(formData.get("service_id") ?? "");
   const active = String(formData.get("active") ?? "") === "true";
@@ -159,7 +159,7 @@ export async function toggleServiceActive(formData: FormData): Promise<void> {
 }
 
 export async function deleteService(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/services");
 
   const serviceId = String(formData.get("service_id") ?? "");
   if (!serviceId) return;
@@ -173,7 +173,7 @@ export async function deleteService(formData: FormData): Promise<void> {
 
 /** Sobe/desce um serviço na ordem de exibição (mesma lógica de moveCreator). */
 export async function moveService(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/services");
 
   const serviceId = String(formData.get("service_id") ?? "");
   const direction = String(formData.get("direction") ?? "");

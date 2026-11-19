@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { brl } from "@/lib/pepper/format";
 import type { PepperQuote, PepperQuoteStatus } from "@/lib/pepper/types";
 import { createClient } from "@/utils/supabase/server";
@@ -53,7 +53,7 @@ export default async function PepperQuotesPage({
 }: {
   searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/quotes");
   const supabase = await createClient();
 
   const { status: statusParam, page: pageParam } = await searchParams;

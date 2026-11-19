@@ -1,16 +1,16 @@
 import Link from "next/link";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 
 export default async function PepperAdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper");
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
       <div className="mb-10 flex flex-wrap items-end justify-between gap-4 border-b border-concrete pb-6">
         <div>
-          <Link href="/dashboard/admin" className="stamp text-ash hover:text-neon-purple">
-            ‹ Admin
+          <Link href="/dashboard" className="stamp text-ash hover:text-neon-orange">
+            ‹ QG da Doca
           </Link>
           <h1 className="mt-2 font-display text-5xl sm:text-6xl">
             <span className="text-bone">AGÊNCIA</span> <span className="neon neon-magenta">PEPPER</span>

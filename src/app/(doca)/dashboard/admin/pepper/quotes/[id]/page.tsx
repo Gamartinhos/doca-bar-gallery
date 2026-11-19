@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { brl } from "@/lib/pepper/format";
 import type {
   PepperQuote,
@@ -39,7 +39,7 @@ const USAGE_LABEL: Record<PepperUsage, string> = {
 };
 
 export default async function PepperQuoteDetailPage({ params }: { params: Params }) {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/quotes");
   const { id } = await params;
   const supabase = await createClient();
 

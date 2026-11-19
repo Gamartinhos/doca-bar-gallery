@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { compactNumber, initials } from "@/lib/pepper/format";
 import type { PepperCreator, PepperTier } from "@/lib/pepper/types";
 import { createClient } from "@/utils/supabase/server";
@@ -50,7 +50,7 @@ export default async function PepperCreatorsPage({
 }: {
   searchParams: Promise<{ edit?: string }>;
 }) {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper/creators");
   const supabase = await createClient();
 
   const { edit: editId } = await searchParams;

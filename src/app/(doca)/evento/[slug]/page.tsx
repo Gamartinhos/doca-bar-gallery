@@ -58,7 +58,9 @@ export default async function EventPage({ params }: { params: Params }) {
   const alreadyInterested = cookieStore.has(`interesse_${event.id}`);
   const alreadyInList = cookieStore.has(`lead_${event.id}`);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   let userRole = null;
   if (user) {
     const { data: profile } = await supabase
@@ -101,9 +103,12 @@ export default async function EventPage({ params }: { params: Params }) {
     thumbnail_url: m.thumbnail_url,
     type: m.type,
     caption: m.caption,
-    credit: m.photographer_id ? (creditById.get(m.photographer_id) ?? null) : null,
+    credit: m.photographer_id
+      ? (creditById.get(m.photographer_id) ?? null)
+      : null,
     eventTitle: event.title,
-    canDelete: userRole === "admin" || (!!user && user.id === m.photographer_id),
+    canDelete:
+      userRole === "admin" || (!!user && user.id === m.photographer_id),
   }));
 
   const formatted = new Date(`${event.date}T12:00:00`).toLocaleDateString(
@@ -124,7 +129,7 @@ export default async function EventPage({ params }: { params: Params }) {
           className="pointer-events-none absolute inset-0 opacity-30"
           style={{
             background:
-              "radial-gradient(ellipse 60% 60% at 20% 0%, var(--color-neon-purple), transparent 65%)",
+              "radial-gradient(ellipse 60% 60% at 20% 0%, var(--color-neon-orange), transparent 65%)",
           }}
           aria-hidden="true"
         />
@@ -134,33 +139,36 @@ export default async function EventPage({ params }: { params: Params }) {
             <div>
               <Link
                 href="/"
-                className="stamp inline-block transition-colors hover:text-neon-blue"
+                className="stamp inline-block transition-colors hover:text-gold-bright"
               >
                 ← Todas as noites
               </Link>
 
-              <p className="stamp mt-8 text-neon-green">{formatted}</p>
+              <p className="stamp mt-8 text-gold-bright">{formatted}</p>
 
-              <h1 className="chromatic mt-3 text-balance-tight font-display text-[clamp(3rem,10vw,7.5rem)] leading-[0.82]">
+              <h1 className="chromatic mt-3 text-balance-tight font-display text-[clamp(3rem,10vw,7.5rem)] leading-[0.82] text-bone">
                 {event.title}
               </h1>
 
               {event.description && (
-                <div className="mt-6 max-w-2xl space-y-4 text-lg leading-relaxed text-bone/75">
-                  {event.description.split('\n').map((paragraph, i) => (
-                    paragraph.trim() ? <p key={i}>{paragraph}</p> : null
-                  ))}
+                <div className="mt-6 max-w-2xl space-y-4 text-lg leading-relaxed text-bone/80">
+                  {event.description.split("\n").map((paragraph, i) =>
+                    paragraph.trim() ? <p key={i}>{paragraph}</p> : null,
+                  )}
                 </div>
               )}
             </div>
 
             {event.cover_image && (
-              <div className="relative aspect-[4/5] w-full border border-concrete bg-void p-2">
+              <div className="relative aspect-[4/5] w-full border border-neon-gold/35 bg-void p-2 shadow-[0_0_40px_-14px_rgba(212,175,55,0.3)]">
                 <Image
                   src={event.cover_image}
                   alt={event.title}
                   fill
-                  unoptimized={!event.cover_image.startsWith("/")}
+                  unoptimized={
+                    !event.cover_image.startsWith("/") ||
+                    event.cover_image.toLowerCase().endsWith(".jfif")
+                  }
                   sizes="(max-width: 1024px) 100vw, 400px"
                   priority
                   className="object-cover"
@@ -173,7 +181,7 @@ export default async function EventPage({ params }: { params: Params }) {
             <dl className="mt-12 flex flex-wrap gap-x-12 gap-y-6 border-t border-concrete pt-8">
               <div>
                 <dt className="stamp">Fotos</dt>
-                <dd className="font-display text-4xl text-neon-blue">
+                <dd className="font-display text-4xl text-gold-bright">
                   {String(photoCount).padStart(2, "0")}
                 </dd>
               </div>
@@ -185,7 +193,7 @@ export default async function EventPage({ params }: { params: Params }) {
               </div>
               <div>
                 <dt className="stamp">Fotógrafos</dt>
-                <dd className="font-display text-4xl text-neon-purple">
+                <dd className="font-display text-4xl text-neon-orange">
                   {String(photographerIds.length).padStart(2, "0")}
                 </dd>
               </div>
@@ -195,75 +203,111 @@ export default async function EventPage({ params }: { params: Params }) {
       </section>
 
       {/* Widget Shotgun/Sympla */}
-      {isUpcoming && event.interest_type === 'link' && event.ticket_url && event.ticket_url.trim().startsWith('<iframe') && (() => {
-        const match = event.ticket_url.match(/src=["'](.*?)["']/);
-        const widgetUrl = match ? match[1] : null;
-        if (!widgetUrl) return null;
-        
-        return (
-          <section id="ingressos" className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-             <div className="w-full bg-void overflow-hidden border border-concrete">
-               <iframe
-                 src={widgetUrl}
-                 title={`Ingressos — ${event.title}`}
-                 width="100%"
-                 height="800px"
-                 style={{ border: 0, maxHeight: 'calc(100vh - 200px)' }}
-               />
-             </div>
-          </section>
-        );
-      })()}
+      {isUpcoming &&
+        event.interest_type === "link" &&
+        event.ticket_url &&
+        event.ticket_url.trim().startsWith("<iframe") &&
+        (() => {
+          const match = event.ticket_url.match(/src=["'](.*?)["']/);
+          const widgetUrl = match ? match[1] : null;
+          if (!widgetUrl) return null;
 
-      {(event.instagram_url || (isUpcoming && event.interest_type !== 'none')) && (
+          return (
+            <section
+              id="ingressos"
+              className="mx-auto max-w-4xl px-4 py-8 sm:px-6"
+            >
+              <div className="w-full overflow-hidden border border-concrete bg-void">
+                <iframe
+                  src={widgetUrl}
+                  title={`Ingressos — ${event.title}`}
+                  width="100%"
+                  height="800px"
+                  style={{ border: 0, maxHeight: "calc(100vh - 200px)" }}
+                />
+              </div>
+            </section>
+          );
+        })()}
+
+      {(event.instagram_url ||
+        (isUpcoming && event.interest_type !== "none")) && (
         <>
           <div className="h-28 md:hidden" aria-hidden="true" />
-          <section className="fixed bottom-0 left-0 right-0 z-40 border-t border-concrete bg-ink/95 p-4 backdrop-blur-md md:static md:mx-auto md:max-w-7xl md:border-none md:bg-transparent md:px-4 md:py-16 md:backdrop-blur-none sm:px-6">
-            <div className="flex flex-row items-center justify-center gap-3 md:gap-24 md:border md:border-concrete md:bg-void md:p-12">
+          <section className="fixed bottom-0 left-0 right-0 z-40 border-t border-concrete bg-ink/95 p-4 backdrop-blur-md sm:px-6 md:static md:mx-auto md:max-w-7xl md:border-none md:bg-transparent md:px-4 md:py-16 md:backdrop-blur-none">
+            <div className="flex flex-row items-center justify-center gap-3 md:gap-24 md:border md:border-neon-gold/30 md:bg-void md:p-12">
               {event.instagram_url && (
                 <div className="flex w-full flex-col items-center gap-6 text-center md:w-auto">
-                  <h2 className="hidden font-display text-4xl text-neon-blue md:block">Post Oficial</h2>
-                  <a href={event.instagram_url} target="_blank" rel="noreferrer" className="btn-ghost w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg">
+                  <h2 className="hidden font-display text-4xl text-gold-bright md:block">
+                    Post Oficial
+                  </h2>
+                  <a
+                    href={event.instagram_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-ghost neon-gold w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
+                  >
                     Ver no Instagram
                   </a>
                 </div>
               )}
 
-              {event.instagram_url && isUpcoming && event.interest_type !== 'none' && (
-                <div className="hidden h-32 w-px bg-concrete md:block" />
-              )}
+              {event.instagram_url &&
+                isUpcoming &&
+                event.interest_type !== "none" && (
+                  <div className="hidden h-32 w-px bg-concrete md:block" />
+                )}
 
-              {isUpcoming && event.interest_type !== 'none' && (
+              {isUpcoming && event.interest_type !== "none" && (
                 <div className="flex w-full flex-col items-center gap-6 text-center md:w-auto">
-                  <h2 className="hidden font-display text-4xl text-bone md:block">Garanta seu lugar</h2>
-                  {event.interest_type === 'link' && event.ticket_url && (
-                    <a 
-                      href={event.ticket_url.trim().startsWith('<') ? "#ingressos" : event.ticket_url} 
-                      target={event.ticket_url.trim().startsWith('<') ? "_self" : "_blank"} 
-                      rel="noreferrer" 
-                      className="btn-street neon-green w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
+                  <h2 className="hidden font-display text-4xl text-bone md:block">
+                    Garanta seu lugar
+                  </h2>
+                  {event.interest_type === "link" && event.ticket_url && (
+                    <a
+                      href={
+                        event.ticket_url.trim().startsWith("<")
+                          ? "#ingressos"
+                          : event.ticket_url
+                      }
+                      target={
+                        event.ticket_url.trim().startsWith("<")
+                          ? "_self"
+                          : "_blank"
+                      }
+                      rel="noreferrer"
+                      className="btn-gold w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
                     >
                       Comprar Ingressos
                     </a>
                   )}
-                  {event.interest_type === 'count' && (
-                    alreadyInterested ? (
-                      <p className="stamp text-neon-purple">✓ Presença confirmada</p>
+                  {event.interest_type === "count" &&
+                    (alreadyInterested ? (
+                      <p className="stamp text-gold-bright">
+                        ✓ Presença confirmada
+                      </p>
                     ) : (
                       <form action={markInterest} className="w-full md:w-auto">
-                        <input type="hidden" name="event_id" value={event.id} />
+                        <input
+                          type="hidden"
+                          name="event_id"
+                          value={event.id}
+                        />
                         <input type="hidden" name="slug" value={slug} />
                         <button
                           type="submit"
-                          className="btn-street neon-purple w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
+                          className="btn-street neon-orange w-full !px-3 !py-3 text-sm md:w-auto md:!px-8 md:!py-4 md:text-lg"
                         >
                           Vou Colar ({event.interest_count})
                         </button>
                       </form>
-                    )
-                  )}
-                  {event.interest_type === 'lead' && (
-                    <LeadForm eventId={event.id} slug={slug} alreadyInList={alreadyInList} />
+                    ))}
+                  {event.interest_type === "lead" && (
+                    <LeadForm
+                      eventId={event.id}
+                      slug={slug}
+                      alreadyInList={alreadyInList}
+                    />
                   )}
                 </div>
               )}
@@ -284,14 +328,17 @@ export default async function EventPage({ params }: { params: Params }) {
               groupedItems.get(groupName)!.push(item);
             }
 
-            return Array.from(groupedItems.entries()).map(([photographerName, groupItems]) => (
-              <div key={photographerName} className="mb-16 last:mb-0">
-                <h2 className="font-display text-3xl text-neon-purple mb-8 border-b border-concrete pb-4">
-                  {photographerName !== "Mídia Oficial" ? "Por: " : ""}{photographerName}
-                </h2>
-                <GalleryGrid items={groupItems} eventSlug={slug} />
-              </div>
-            ));
+            return Array.from(groupedItems.entries()).map(
+              ([photographerName, groupItems]) => (
+                <div key={photographerName} className="mb-16 last:mb-0">
+                  <h2 className="mb-8 border-b border-concrete pb-4 font-display text-3xl text-neon-orange">
+                    {photographerName !== "Mídia Oficial" ? "Por: " : ""}
+                    {photographerName}
+                  </h2>
+                  <GalleryGrid items={groupItems} eventSlug={slug} />
+                </div>
+              ),
+            );
           })()}
         </section>
       )}

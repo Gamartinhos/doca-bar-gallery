@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = { title: "Pepper · Admin" };
 export const revalidate = 0;
 
 export default async function PepperAdminOverviewPage() {
-  await requireAdmin();
+  await requirePermission("pepper", "/dashboard/admin/pepper");
   const supabase = await createClient();
 
   const [
